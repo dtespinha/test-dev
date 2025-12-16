@@ -4,9 +4,8 @@ test("GET to /api/vi/status should return as expected", async () => {
 
   const responseBody = await response.json();
 
-  expect(responseBody.status).toBe("ok");
-
   const updatedAt = new Date(responseBody.updated_at).toISOString();
+  expect(responseBody.status).toBe("ok");
   expect(responseBody.updated_at).toBe(updatedAt);
   expect(responseBody.dependencies.database.version).toBe("16.11");
   expect(responseBody.dependencies.database.max_connections).toBe(100);

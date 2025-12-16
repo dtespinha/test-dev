@@ -13,7 +13,6 @@ async function migrations(request, response) {
     migrationsTable: "pgmigrations",
   };
 
-  console.log(process.env.NODE_ENV);
   if (request.method === "GET") {
     const pendingMigrations = await migrationRunner(defaultMigrationOptions);
     await dbClient.end();
@@ -31,7 +30,11 @@ async function migrations(request, response) {
       return response.status(200).json(migratedMigrations);
     }
   } else {
-    return response.status(405);
+    await dbClient.end();
+    const methodNotAllowedResponse = {
+      error: `Method ${request.method} not allowed`,
+    };
+    return response.status(405).json(methodNotAllowedResponse);
   }
 }
 
