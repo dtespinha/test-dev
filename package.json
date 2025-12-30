@@ -9,11 +9,12 @@
     "services:stop": "docker compose -f infra/compose.yml stop",
     "test": "jest --runInBand",
     "test:watch": "jest --runInBand --watchAll",
-    "dev": "npm run services:up && next dev",
+    "dev": "npm run services:up && npm run wait-for-postgres && npm run migrations:up && next dev",
     "lint:check": "prettier --check .",
     "lint:fix": "prettier --write .",
     "migration:create": "node-pg-migrate --migrations-dir infra/migrations create",
-    "migrations:up": "node-pg-migrate --migrations-dir infra/migrations --envPath .env.development up"
+    "migrations:up": "node-pg-migrate --migrations-dir infra/migrations --envPath .env.development up",
+    "wait-for-postgres": "node ./infra/scripts/wait-for-postgres.js"
   },
   "author": "",
   "license": "MIT",
