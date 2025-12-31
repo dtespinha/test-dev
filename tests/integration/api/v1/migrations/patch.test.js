@@ -1,10 +1,8 @@
 import database from "infra/database.js";
 
-beforeAll(cleanDatabase);
-
-async function cleanDatabase() {
+beforeAll(async () => {
   await database.query("DROP schema public cascade; CREATE schema public;");
-}
+});
 
 test("PATCH to /api/vi/migrations should return method not allowed", async () => {
   for (let i = 0; i < 1; i++) {
