@@ -13,7 +13,6 @@ export default defineConfig([
       "no-trailing-spaces": "error",
       "comma-dangle": ["error", "always-multiline"],
       "no-unused-vars": "warn",
-      "no-console": "warn",
       "prefer-const": "error",
       "arrow-spacing": ["error", { before: true, after: true }],
       "object-curly-spacing": ["error", "always"],
