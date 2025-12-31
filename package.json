@@ -12,6 +12,8 @@
     "dev": "npm run services:up && npm run wait-for-postgres && npm run migrations:up && next dev",
     "lint:prettier:check": "prettier --check .",
     "lint:prettier:fix": "prettier --write .",
+    "lint:eslint:check": "npx eslint . --ignore-pattern .next/",
+    "lint:eslint:fix": "npx eslint . --fix --ignore-pattern .next/",
     "migration:create": "node-pg-migrate --migrations-dir infra/migrations create",
     "migrations:up": "node-pg-migrate --migrations-dir infra/migrations --envPath .env.development up",
     "wait-for-postgres": "node ./infra/scripts/wait-for-postgres.js"
@@ -30,6 +32,7 @@
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
+    "eslint": "^9.39.2",
     "jest": "^29.6.2",
     "prettier": "^3.6.2"
   }
