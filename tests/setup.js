@@ -1,5 +1,7 @@
 import orchestrator from "./orchestrator.js";
 
-export default async () => {
+const waitForAllServices = async () => {
   await orchestrator.waitForAllServices();
 };
+
+export default waitForAllServices;
