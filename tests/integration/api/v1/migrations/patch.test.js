@@ -1,12 +1,10 @@
 import database from "infra/database.js";
 
-beforeAll(cleanDatabase);
-
-async function cleanDatabase() {
+beforeAll(async () => {
   await database.query("DROP schema public cascade; CREATE schema public;");
-}
+});
 
-test("PATCH to /api/vi/migrations should return method not allowed", async () => {
+test("PATCH to /api/v1/migrations should return method not allowed", async () => {
   for (let i = 0; i < 1; i++) {
     const response = await fetch("http://localhost:3000/api/v1/migrations", {
       method: "PATCH",
