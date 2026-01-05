@@ -20,6 +20,7 @@
     "lint:prettier:fix": "prettier --write .",
     "lint:eslint:check": "next lint --dir .",
     "lint:eslint:fix": "next lint --fix --dir .",
+    "lint:secrets:check": "npx secretlint \"**/*\"",
     "prepare": "husky",
     "commit": "cz"
   },
@@ -38,6 +39,7 @@
   "devDependencies": {
     "@commitlint/cli": "19.4.0",
     "@commitlint/config-conventional": "19.2.2",
+    "@secretlint/secretlint-rule-preset-recommend": "^9.3.4",
     "commitizen": "4.3.0",
     "concurrently": "8.2.2",
     "cz-conventional-changelog": "3.3.0",
@@ -47,7 +49,8 @@
     "eslint-plugin-jest": "28.8.0",
     "husky": "9.1.4",
     "jest": "29.7.0",
-    "prettier": "3.6.2"
+    "prettier": "3.6.2",
+    "secretlint": "^9.3.4"
   },
   "config": {
     "commitizen": {
