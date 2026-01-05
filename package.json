@@ -8,6 +8,8 @@
     "services:down": "docker compose -f infra/compose.yml down",
     "services:stop": "docker compose -f infra/compose.yml stop",
     "services:wait:database": "node ./infra/scripts/wait-for-postgres.js",
+    "migrations:create": "node-pg-migrate --migrations-dir infra/migrations create",
+    "migrations:up": "node-pg-migrate --migrations-dir infra/migrations --envPath .env.development up",
     "test": "npm run services:up && concurrently -n next,jest --hide next -k -s command-jest \"next dev\" \"jest --runInBand\"",
     "test:watch": "jest --runInBand --watchAll",
     "dev": "npm run services:up && npm run services:wait:database && npm run migrations:up && next dev",
@@ -15,8 +17,6 @@
     "lint:prettier:fix": "prettier --write .",
     "lint:eslint:check": "next lint --dir .",
     "lint:eslint:fix": "next lint --fix --dir .",
-    "migration:create": "node-pg-migrate --migrations-dir infra/migrations create",
-    "migrations:up": "node-pg-migrate --migrations-dir infra/migrations --envPath .env.development up",
     "prepare": "husky",
     "commit": "cz"
   },
