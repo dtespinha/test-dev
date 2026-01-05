@@ -4,8 +4,11 @@
   "description": "Repositório teste",
   "main": "index.js",
   "scripts": {
-    "dev": "npm run services:up && npm run services:wait:database && npm run migrations:up && next dev",
+    "dev:main": "npm run services:up && npm run services:wait:database && npm run migrations:up && next dev",
+    "dev": "node run-dev.js",
+    "postdev": "npm run services:down",
     "test": "npm run services:up && concurrently -n next,jest --hide next -k -s command-jest \"next dev\" \"jest --runInBand\"",
+    "posttest": "npm run services:down",
     "test:watch": "jest --runInBand --watchAll",
     "services:up": "docker compose -f infra/compose.yml up -d",
     "services:down": "docker compose -f infra/compose.yml down",
