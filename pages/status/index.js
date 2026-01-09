@@ -1,5 +1,11 @@
 import useSWR from "swr";
 
+function useStatusData() {
+  return useSWR("/api/v1/status", fetchAPI, {
+    refreshInterval: 2000,
+  });
+}
+
 async function fetchAPI(key) {
   const response = await fetch(key);
   return await response.json();
@@ -19,23 +25,6 @@ function InfoItem({ label, value }) {
     <p>
       {label}: {value}
     </p>
-  );
-}
-
-function useStatusData() {
-  return useSWR("/api/v1/status", fetchAPI, {
-    refreshInterval: 2000,
-  });
-}
-
-export default function StatusPage() {
-  return (
-    <>
-      <h1>Status</h1>
-      <UpdatedAt />
-      <Status />
-      <Dependencies />
-    </>
   );
 }
 
@@ -100,5 +89,16 @@ function Dependencies() {
         value={dbInfo.dbUsedConnections}
       />
     </InfoSection>
+  );
+}
+
+export default function StatusPage() {
+  return (
+    <>
+      <h1>Status</h1>
+      <UpdatedAt />
+      <Status />
+      <Dependencies />
+    </>
   );
 }
