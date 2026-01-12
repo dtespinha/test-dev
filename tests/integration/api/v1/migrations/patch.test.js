@@ -16,7 +16,13 @@ describe("PATCH /api/v1/migrations", () => {
         );
         const responseBody = await response.json();
         expect(response.status).toBe(405);
-        expect(responseBody.error).toBe("Method PATCH not allowed");
+        expect(responseBody.message).toBe(
+          "Method not allowed for this endpoint.",
+        );
+        expect(responseBody.action).toBe(
+          "Verify if the requested method is valid for this endpoint.",
+        );
+        expect(responseBody.status_code).toBe(405);
       }
       const response = await fetch("http://localhost:3000/api/v1/status");
       expect(response.status).toBe(200);
