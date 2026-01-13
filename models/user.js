@@ -1,30 +1,36 @@
 import database from "../infra/database.js";
-import { ValidationError } from "infra/errors.js";
+import { ValidationError, NotFoundError } from "infra/errors.js";
 
 async function create(userInputValues) {
-  await validateEmptyValues(
-    userInputValues.username,
-    userInputValues.email,
-    userInputValues.password,
-  );
+  await validateEmptyValues(userInputValues);
   await validateEmail(userInputValues.email);
   await validateUsername(userInputValues.username);
   await validateUniqueValues(userInputValues.username, userInputValues.email);
   return await runInsertQuery(userInputValues);
 }
 
-async function validateEmptyValues(username, email, password) {
-  const validations = [
-    { field: "Username", value: username },
-    { field: "Email", value: email },
-    { field: "Password", value: password },
-  ];
+async function findOneByUsername(username) {
+  await validateEmptyValues({ username: username });
+  await validateUsername(username);
+  const userFound = await queryByUsername(username);
+  await checkUserExists(userFound);
+  return userFound;
+}
 
-  for (const { field, value } of validations) {
-    if (!value) {
+async function validateEmptyValues(fieldsObj) {
+  const fieldNames = {
+    username: "Username",
+    email: "Email",
+    password: "Password",
+  };
+
+  for (const [fieldName, fieldValue] of Object.entries(fieldsObj)) {
+    const displayName = fieldNames[fieldName] || fieldName;
+
+    if (!fieldValue || fieldValue.trim() === "") {
       throw new ValidationError({
-        message: `${field} is empty.`,
-        action: `${field} must have a value.`,
+        message: `${displayName} is empty.`,
+        action: `${displayName} must have a value.`,
       });
     }
   }
@@ -92,8 +98,34 @@ async function runInsertQuery(userInputValues) {
   return results.rows[0];
 }
 
+async function queryByUsername(username) {
+  const results = await database.query({
+    text: `
+    SELECT id, username, email, created_at, updated_at
+    FROM    
+      users
+    WHERE
+      username = LOWER($1)
+    LIMIT
+      1
+    ;`,
+    values: [username],
+  });
+  return results.rows[0];
+}
+
+async function checkUserExists(user) {
+  if (!user) {
+    throw new NotFoundError({
+      message: "User not found.",
+      action: "Please provide a already registered user.",
+    });
+  }
+}
+
 const user = {
   create,
+  findOneByUsername,
 };
 
 export default user;
