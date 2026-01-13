@@ -1,4 +1,4 @@
-import database from "infra/database.js";
+import database from "../infra/database.js";
 import migrationRunner from "node-pg-migrate";
 import { resolve } from "node:path";
 import { ServiceError } from "../infra/errors";
@@ -8,6 +8,7 @@ const migrationOptions = {
   dir: resolve("infra", "migrations"),
   direction: "up",
   verbose: true,
+  log: () => {},
   migrationsTable: "pgmigrations",
 };
 
