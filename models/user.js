@@ -2,8 +2,56 @@ import database from "../infra/database.js";
 import { ValidationError } from "infra/errors.js";
 
 async function create(userInputValues) {
+  await validateEmptyValues(
+    userInputValues.username,
+    userInputValues.email,
+    userInputValues.password,
+  );
+  await validateEmail(userInputValues.email);
+  await validateUsername(userInputValues.username);
   await validateUniqueValues(userInputValues.username, userInputValues.email);
   return await runInsertQuery(userInputValues);
+}
+
+async function validateEmptyValues(username, email, password) {
+  const validations = [
+    { field: "Username", value: username },
+    { field: "Email", value: email },
+    { field: "Password", value: password },
+  ];
+
+  for (const { field, value } of validations) {
+    if (!value) {
+      throw new ValidationError({
+        message: `${field} is empty.`,
+        action: `${field} must have a value.`,
+      });
+    }
+  }
+}
+
+async function validateEmail(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const isValid = emailRegex.test(email) && email.length <= 254;
+
+  if (!isValid) {
+    throw new ValidationError({
+      message: "Email is invalid.",
+      action: "Please provide a valid email address.",
+    });
+  }
+}
+
+async function validateUsername(username) {
+  const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+
+  if (!usernameRegex.test(username)) {
+    throw new ValidationError({
+      message: "Username is invalid.",
+      action:
+        "Username must be 3-20 characters long and contain only letters, numbers, and underscores.",
+    });
+  }
 }
 
 async function validateUniqueValues(username, email) {
