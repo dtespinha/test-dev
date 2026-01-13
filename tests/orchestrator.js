@@ -29,10 +29,26 @@ async function runningPendingMigrations() {
   await migrator.runPendingMigrations();
 }
 
+async function createUser(user) {
+  const results = await database.query({
+    text: `
+    INSERT INTO 
+      users (username, email, password)
+    VALUES 
+      (LOWER($1), LOWER($2), $3)
+    RETURNING
+      *
+    ;`,
+    values: [user.username, user.email, user.password],
+  });
+  return results.rows[0];
+}
+
 const orchestrator = {
   waitForAllServices,
   clearDatabase,
   runningPendingMigrations,
+  createUser,
 };
 
 export default orchestrator;
