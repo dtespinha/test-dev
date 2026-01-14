@@ -32,22 +32,7 @@ async function runningPendingMigrations() {
 }
 
 async function createUser(userInputValues) {
-  const results = await database.query({
-    text: `
-    INSERT INTO 
-      users (username, email, password)
-    VALUES 
-      (LOWER($1), LOWER($2), $3)
-    RETURNING
-      *
-    ;`,
-    values: [
-      userInputValues.username,
-      userInputValues.email,
-      userInputValues.password,
-    ],
-  });
-  return results.rows[0];
+  return await user.create(userInputValues);
 }
 
 async function checkUserPasswordInDatabase(userInputValues) {

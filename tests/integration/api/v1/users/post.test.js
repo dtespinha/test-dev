@@ -125,9 +125,9 @@ describe("POST /api/v1/users", () => {
         expect(response.status).toBe(400);
 
         const responseBody = await response.json();
-        expect(responseBody.message).toBe("Username or Email already exists.");
+        expect(responseBody.message).toBe("Username already exists.");
         expect(responseBody.action).toBe(
-          "Try creating with a different value.",
+          "Please provide a different username.",
         );
         expect(responseBody.status_code).toBe(400);
       });
@@ -158,9 +158,9 @@ describe("POST /api/v1/users", () => {
         expect(response.status).toBe(400);
 
         const responseBody = await response.json();
-        expect(responseBody.message).toBe("Username or Email already exists.");
+        expect(responseBody.message).toBe("Username already exists.");
         expect(responseBody.action).toBe(
-          "Try creating with a different value.",
+          "Please provide a different username.",
         );
         expect(responseBody.status_code).toBe(400);
       });
@@ -179,8 +179,10 @@ describe("POST /api/v1/users", () => {
         expect(response.status).toBe(400);
 
         const responseBody = await response.json();
-        expect(responseBody.message).toBe("Username is empty.");
-        expect(responseBody.action).toBe("Username must have a value.");
+        expect(responseBody.message).toBe("Username is invalid.");
+        expect(responseBody.action).toBe(
+          "Username must be 3-20 characters long and contain only letters, numbers, and underscores.",
+        );
         expect(responseBody.status_code).toBe(400);
       });
 
@@ -210,10 +212,8 @@ describe("POST /api/v1/users", () => {
         expect(response.status).toBe(400);
 
         const responseBody = await response.json();
-        expect(responseBody.message).toBe("Username or Email already exists.");
-        expect(responseBody.action).toBe(
-          "Try creating with a different value.",
-        );
+        expect(responseBody.message).toBe("Email already exists.");
+        expect(responseBody.action).toBe("Please provide a different email.");
         expect(responseBody.status_code).toBe(400);
       });
 
@@ -243,10 +243,8 @@ describe("POST /api/v1/users", () => {
         expect(response.status).toBe(400);
 
         const responseBody = await response.json();
-        expect(responseBody.message).toBe("Username or Email already exists.");
-        expect(responseBody.action).toBe(
-          "Try creating with a different value.",
-        );
+        expect(responseBody.message).toBe("Email already exists.");
+        expect(responseBody.action).toBe("Please provide a different email.");
         expect(responseBody.status_code).toBe(400);
       });
 
@@ -264,8 +262,10 @@ describe("POST /api/v1/users", () => {
         expect(response.status).toBe(400);
 
         const responseBody = await response.json();
-        expect(responseBody.message).toBe("Email is empty.");
-        expect(responseBody.action).toBe("Email must have a value.");
+        expect(responseBody.message).toBe("Email is invalid.");
+        expect(responseBody.action).toBe(
+          "Please provide a valid email address.",
+        );
         expect(responseBody.status_code).toBe(400);
       });
 
@@ -283,8 +283,10 @@ describe("POST /api/v1/users", () => {
         expect(response.status).toBe(400);
 
         const responseBody = await response.json();
-        expect(responseBody.message).toBe("Password is empty.");
-        expect(responseBody.action).toBe("Password must have a value.");
+        expect(responseBody.message).toBe("Password is invalid.");
+        expect(responseBody.action).toBe(
+          "Please provide a password with less than 72 characters.",
+        );
         expect(responseBody.status_code).toBe(400);
       });
 
