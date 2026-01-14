@@ -1,6 +1,8 @@
 import database from "../infra/database.js";
 import retry from "async-retry";
 import migrator from "../models/migrator.js";
+import user from "../models/user.js";
+import password from "../models/password.js";
 
 async function waitForAllServices() {
   await waitForWebServer();
@@ -29,7 +31,7 @@ async function runningPendingMigrations() {
   await migrator.runPendingMigrations();
 }
 
-async function createUser(user) {
+async function createUser(userInputValues) {
   const results = await database.query({
     text: `
     INSERT INTO 
@@ -39,15 +41,28 @@ async function createUser(user) {
     RETURNING
       *
     ;`,
-    values: [user.username, user.email, user.password],
+    values: [
+      userInputValues.username,
+      userInputValues.email,
+      userInputValues.password,
+    ],
   });
   return results.rows[0];
+}
+
+async function checkUserPasswordInDatabase(userInputValues) {
+  const userInDatabase = await user.findOneByUsername(userInputValues.username);
+  return await password.compare(
+    userInputValues.password,
+    userInDatabase.password,
+  );
 }
 
 const orchestrator = {
   waitForAllServices,
   clearDatabase,
   runningPendingMigrations,
+  checkUserPasswordInDatabase,
   createUser,
 };
 

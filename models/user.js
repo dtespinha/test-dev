@@ -1,5 +1,6 @@
 import database from "../infra/database.js";
-import { ValidationError, NotFoundError } from "infra/errors.js";
+import password from "../models/password.js";
+import { ValidationError, NotFoundError } from "../infra/errors.js";
 
 async function create(userInputValues) {
   await validateEmptyValues(userInputValues);
@@ -7,7 +8,33 @@ async function create(userInputValues) {
   await validateUsername(userInputValues.username);
   await validatePassword(userInputValues.password);
   await validateUniqueValues(userInputValues.username, userInputValues.email);
+  await hashPasswordInObject(userInputValues);
   return await runInsertQuery(userInputValues);
+
+  async function runInsertQuery(userInputValues) {
+    const results = await database.query({
+      text: `
+    INSERT INTO 
+      users (username, email, password)
+    VALUES 
+      (LOWER($1), LOWER($2), $3)
+    RETURNING
+      *
+    ;`,
+      values: [
+        userInputValues.username,
+        userInputValues.email,
+        userInputValues.password,
+      ],
+    });
+    return results.rows[0];
+  }
+
+  async function hashPasswordInObject(userInputValues) {
+    const hashPassword = await password.hash(userInputValues.password);
+    userInputValues.password = hashPassword;
+    return userInputValues;
+  }
 }
 
 async function findOneByUsername(username) {
@@ -15,7 +42,13 @@ async function findOneByUsername(username) {
   await validateUsername(username);
   const userFound = await queryByUsername(username);
   await checkUserExists(userFound);
-  return userFound;
+  return await userFound;
+}
+
+async function removePasswordFromObject(user) {
+  // eslint-disable-next-line no-unused-vars
+  const { password, ...userwithoutPassword } = user;
+  return userwithoutPassword;
 }
 
 async function validateEmptyValues(fieldsObj) {
@@ -89,29 +122,10 @@ async function validateUniqueValues(username, email) {
   }
 }
 
-async function runInsertQuery(userInputValues) {
-  const results = await database.query({
-    text: `
-    INSERT INTO 
-      users (username, email, password)
-    VALUES 
-      (LOWER($1), LOWER($2), $3)
-    RETURNING
-      *
-    ;`,
-    values: [
-      userInputValues.username,
-      userInputValues.email,
-      userInputValues.password,
-    ],
-  });
-  return results.rows[0];
-}
-
 async function queryByUsername(username) {
   const results = await database.query({
     text: `
-    SELECT id, username, email, created_at, updated_at
+    SELECT id, username, password, email, created_at, updated_at
     FROM    
       users
     WHERE
@@ -136,6 +150,7 @@ async function checkUserExists(user) {
 const user = {
   create,
   findOneByUsername,
+  removePasswordFromObject,
 };
 
 export default user;
