@@ -5,6 +5,7 @@ async function create(userInputValues) {
   await validateEmptyValues(userInputValues);
   await validateEmail(userInputValues.email);
   await validateUsername(userInputValues.username);
+  await validatePassword(userInputValues.password);
   await validateUniqueValues(userInputValues.username, userInputValues.email);
   return await runInsertQuery(userInputValues);
 }
@@ -56,6 +57,15 @@ async function validateUsername(username) {
       message: "Username is invalid.",
       action:
         "Username must be 3-20 characters long and contain only letters, numbers, and underscores.",
+    });
+  }
+}
+
+async function validatePassword(password) {
+  if (password.length > 72) {
+    throw new ValidationError({
+      message: "Password is invalid.",
+      action: "Please provide a password with less than 72 characters.",
     });
   }
 }
