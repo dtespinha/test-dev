@@ -3,11 +3,12 @@ import password from "../models/password.js";
 import { ValidationError, NotFoundError } from "../infra/errors.js";
 
 async function create(userInputValues) {
-  await validateEmptyValues(userInputValues);
-  await validateEmail(userInputValues.email);
+  await validateUniqueUsername(userInputValues.username);
   await validateUsername(userInputValues.username);
+  await validateUniqueEmail(userInputValues.email);
+  await validateEmail(userInputValues.email);
   await validatePassword(userInputValues.password);
-  await validateUniqueValues(userInputValues.username, userInputValues.email);
+
   await hashPasswordInObject(userInputValues);
   return await runInsertQuery(userInputValues);
 
@@ -37,12 +38,65 @@ async function create(userInputValues) {
   }
 }
 
+async function update(username, userInputValues) {
+  const userFound = await queryByUsername(username);
+  await checkUserExists(userFound);
+
+  if ("username" in userInputValues) {
+    await validateUniqueUsername(userInputValues.username);
+    await validateUsername(userInputValues.username);
+  }
+  if ("email" in userInputValues) {
+    await validateUniqueEmail(userInputValues.email);
+    await validateEmail(userInputValues.email);
+  }
+  if ("password" in userInputValues) {
+    await validatePassword(userInputValues.password);
+    await hashPasswordInObject(userInputValues);
+  }
+
+  const userWithNewValues = { ...userFound, ...userInputValues };
+
+  const updatedUser = await runUpdateQuery(username, userWithNewValues);
+  return updatedUser;
+
+  async function runUpdateQuery(username, userWithNewValues) {
+    const results = await database.query({
+      text: `
+    UPDATE
+      users
+    SET
+      username = LOWER($2),
+      email = LOWER($3),
+      password = $4,
+      updated_at = timezone('utc', now())
+    WHERE
+      id = $1
+    RETURNING
+      *
+    ;`,
+      values: [
+        userWithNewValues.id,
+        userWithNewValues.username,
+        userWithNewValues.email,
+        userWithNewValues.password,
+      ],
+    });
+    return results.rows[0];
+  }
+
+  async function hashPasswordInObject(userInputValues) {
+    const hashPassword = await password.hash(userInputValues.password);
+    userInputValues.password = hashPassword;
+    return userInputValues;
+  }
+}
+
 async function findOneByUsername(username) {
-  await validateEmptyValues({ username: username });
   await validateUsername(username);
   const userFound = await queryByUsername(username);
   await checkUserExists(userFound);
-  return await userFound;
+  return userFound;
 }
 
 async function removePasswordFromObject(user) {
@@ -51,30 +105,11 @@ async function removePasswordFromObject(user) {
   return userwithoutPassword;
 }
 
-async function validateEmptyValues(fieldsObj) {
-  const fieldNames = {
-    username: "Username",
-    email: "Email",
-    password: "Password",
-  };
-
-  for (const [fieldName, fieldValue] of Object.entries(fieldsObj)) {
-    const displayName = fieldNames[fieldName] || fieldName;
-
-    if (!fieldValue || fieldValue.trim() === "") {
-      throw new ValidationError({
-        message: `${displayName} is empty.`,
-        action: `${displayName} must have a value.`,
-      });
-    }
-  }
-}
-
 async function validateEmail(email) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const isValid = emailRegex.test(email) && email.length <= 254;
 
-  if (!isValid) {
+  if (!isValid || !email) {
     throw new ValidationError({
       message: "Email is invalid.",
       action: "Please provide a valid email address.",
@@ -85,7 +120,7 @@ async function validateEmail(email) {
 async function validateUsername(username) {
   const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
 
-  if (!usernameRegex.test(username)) {
+  if (!usernameRegex.test(username) || !username) {
     throw new ValidationError({
       message: "Username is invalid.",
       action:
@@ -95,7 +130,7 @@ async function validateUsername(username) {
 }
 
 async function validatePassword(password) {
-  if (password.length > 72) {
+  if (password.length > 72 || !password) {
     throw new ValidationError({
       message: "Password is invalid.",
       action: "Please provide a password with less than 72 characters.",
@@ -103,21 +138,34 @@ async function validatePassword(password) {
   }
 }
 
-async function validateUniqueValues(username, email) {
+async function validateUniqueUsername(username) {
   const results = await database.query({
     text: `
-    SELECT id FROM
-        users
-    WHERE 
-      LOWER(username) = LOWER($1) OR LOWER(email) = LOWER($2)
-    ;`,
-    values: [username, email],
+      SELECT id FROM users WHERE LOWER(username) = LOWER($1);
+    `,
+    values: [username],
   });
 
   if (results.rowCount > 0) {
     throw new ValidationError({
-      message: "Username or Email already exists.",
-      action: "Try creating with a different value.",
+      message: "Username already exists.",
+      action: "Please provide a different username.",
+    });
+  }
+}
+
+async function validateUniqueEmail(email) {
+  const results = await database.query({
+    text: `
+      SELECT id FROM users WHERE LOWER(email) = LOWER($1);
+    `,
+    values: [email],
+  });
+
+  if (results.rowCount > 0) {
+    throw new ValidationError({
+      message: "Email already exists.",
+      action: "Please provide a different email.",
     });
   }
 }
@@ -149,6 +197,7 @@ async function checkUserExists(user) {
 
 const user = {
   create,
+  update,
   findOneByUsername,
   removePasswordFromObject,
 };
