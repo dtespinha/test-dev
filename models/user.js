@@ -40,7 +40,6 @@ async function create(userInputValues) {
 
 async function update(username, userInputValues) {
   const userFound = await queryByUsername(username);
-  await checkUserExists(userFound);
 
   if ("username" in userInputValues) {
     await validateUniqueUsername(userInputValues.username);
@@ -93,9 +92,12 @@ async function update(username, userInputValues) {
 }
 
 async function findOneByUsername(username) {
-  await validateUsername(username);
   const userFound = await queryByUsername(username);
-  await checkUserExists(userFound);
+  return userFound;
+}
+
+async function findOneByEmail(email) {
+  const userFound = await queryByEmail(email);
   return userFound;
 }
 
@@ -183,22 +185,46 @@ async function queryByUsername(username) {
     ;`,
     values: [username],
   });
-  return results.rows[0];
-}
 
-async function checkUserExists(user) {
-  if (!user) {
+  if (!results.rows[0]) {
     throw new NotFoundError({
       message: "User not found.",
       action: "Please provide a already registered user.",
     });
   }
+
+  return results.rows[0];
+}
+
+async function queryByEmail(email) {
+  const results = await database.query({
+    text: `
+    SELECT id, username, password, email, created_at, updated_at
+    FROM
+      users
+    WHERE
+      email = LOWER($1)
+    LIMIT
+      1
+    ;`,
+    values: [email],
+  });
+
+  if (!results.rows[0]) {
+    throw new NotFoundError({
+      message: "Email not found.",
+      action: "Please provide a already registered email.",
+    });
+  }
+
+  return results.rows[0];
 }
 
 const user = {
   create,
   update,
   findOneByUsername,
+  findOneByEmail,
   removePasswordFromObject,
 };
 

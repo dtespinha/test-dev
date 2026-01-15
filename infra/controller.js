@@ -1,4 +1,5 @@
 import {
+  UnauthorizedError,
   InternalServerError,
   MethodNotAllowedError,
   NotFoundError,
@@ -6,7 +7,11 @@ import {
 } from "infra/errors.js";
 
 async function onErrorHandler(error, request, response) {
-  if (error instanceof ValidationError || error instanceof NotFoundError) {
+  if (
+    error instanceof ValidationError ||
+    error instanceof NotFoundError ||
+    error instanceof UnauthorizedError
+  ) {
     return response.status(error.statusCode).json(error);
   }
 
