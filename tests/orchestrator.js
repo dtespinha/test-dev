@@ -1,5 +1,6 @@
-import database from "../infra/database.js";
+import { fakerPT_BR as faker } from "@faker-js/faker";
 import retry from "async-retry";
+import database from "../infra/database.js";
 import migrator from "../models/migrator.js";
 import user from "../models/user.js";
 import password from "../models/password.js";
@@ -31,8 +32,27 @@ async function runningPendingMigrations() {
   await migrator.runPendingMigrations();
 }
 
-async function createUser(userInputValues) {
-  return await user.create(userInputValues);
+async function createUser(userInputValues = {}) {
+  const username = (
+    userInputValues.username ||
+    faker.internet
+      .username()
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, "")
+  ).slice(0, 20);
+  const email = userInputValues.email || faker.internet.email().toLowerCase();
+  const password = userInputValues.password || faker.internet.password();
+  const inputValues = {
+    username,
+    email,
+    password,
+  };
+  const createdUser = await user.create({ ...inputValues });
+  const createUserData = {
+    inputValues: inputValues,
+    createdUser: createdUser,
+  };
+  return createUserData;
 }
 
 async function checkUserPasswordInDatabase(userInputValues) {

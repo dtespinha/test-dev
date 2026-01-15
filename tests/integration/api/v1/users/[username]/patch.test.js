@@ -12,10 +12,8 @@ describe("PATCH /api/v1/users/{username}", () => {
       test("With unique username", async () => {
         const user = {
           username: "testuser",
-          email: "email@test.com",
-          password: "test",
         };
-        await orchestrator.createUser({ ...user });
+        const createdUserData = await orchestrator.createUser({ ...user });
 
         const response = await fetch(
           `http://localhost:3000/api/v1/users/${user.username}`,
@@ -33,14 +31,14 @@ describe("PATCH /api/v1/users/{username}", () => {
         expect(responseBody).toEqual({
           id: responseBody.id,
           username: "testuser2",
-          email: user.email,
+          email: createdUserData.inputValues.email,
           created_at: responseBody.created_at,
           updated_at: responseBody.updated_at,
         });
 
         const correctPasswordMatch =
           await orchestrator.checkUserPasswordInDatabase({
-            ...user,
+            ...createdUserData.inputValues,
             username: "testuser2",
           });
         expect(correctPasswordMatch).toBe(true);
@@ -50,15 +48,10 @@ describe("PATCH /api/v1/users/{username}", () => {
       });
 
       test("With unique email", async () => {
-        const user = {
-          username: "testuser",
-          email: "email@test.com",
-          password: "test",
-        };
-        await orchestrator.createUser({ ...user });
+        const createdUserData = await orchestrator.createUser();
 
         const response = await fetch(
-          `http://localhost:3000/api/v1/users/${user.username}`,
+          `http://localhost:3000/api/v1/users/${createdUserData.inputValues.username}`,
           {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
@@ -72,7 +65,7 @@ describe("PATCH /api/v1/users/{username}", () => {
         const responseBody = await response.json();
         expect(responseBody).toEqual({
           id: responseBody.id,
-          username: user.username,
+          username: createdUserData.inputValues.username,
           email: "email2@test.com",
           created_at: responseBody.created_at,
           updated_at: responseBody.updated_at,
@@ -80,7 +73,7 @@ describe("PATCH /api/v1/users/{username}", () => {
 
         const correctPasswordMatch =
           await orchestrator.checkUserPasswordInDatabase({
-            ...user,
+            ...createdUserData.inputValues,
           });
         expect(correctPasswordMatch).toBe(true);
         expect(uuidVersion(responseBody.id)).toBe(4);
@@ -89,15 +82,10 @@ describe("PATCH /api/v1/users/{username}", () => {
       });
 
       test("With unique password", async () => {
-        const user = {
-          username: "testuser",
-          email: "email@test.com",
-          password: "test",
-        };
-        await orchestrator.createUser({ ...user });
+        const createdUserData = await orchestrator.createUser();
 
         const response = await fetch(
-          `http://localhost:3000/api/v1/users/${user.username}`,
+          `http://localhost:3000/api/v1/users//${createdUserData.inputValues.username}`,
           {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
@@ -111,15 +99,15 @@ describe("PATCH /api/v1/users/{username}", () => {
         const responseBody = await response.json();
         expect(responseBody).toEqual({
           id: responseBody.id,
-          username: user.username,
-          email: user.email,
+          username: createdUserData.inputValues.username,
+          email: createdUserData.inputValues.email,
           created_at: responseBody.created_at,
           updated_at: responseBody.updated_at,
         });
 
         const correctPasswordMatch =
           await orchestrator.checkUserPasswordInDatabase({
-            ...user,
+            ...createdUserData.inputValues,
             password: "test2",
           });
         expect(correctPasswordMatch).toBe(true);
@@ -129,12 +117,7 @@ describe("PATCH /api/v1/users/{username}", () => {
       });
 
       test("Username not found", async () => {
-        const user = {
-          username: "testuser",
-          email: "email@test.com",
-          password: "test",
-        };
-        await orchestrator.createUser(user);
+        await orchestrator.createUser();
 
         const response = await fetch(
           `http://localhost:3000/api/v1/users/user`,
@@ -156,25 +139,16 @@ describe("PATCH /api/v1/users/{username}", () => {
       });
 
       test("Username already exists", async () => {
-        const user = {
-          username: "testuser",
-          email: "email@test.com",
-          password: "test",
-        };
-        await orchestrator.createUser(user);
-        await orchestrator.createUser({
-          ...user,
-          username: "testuser2",
-          email: "email2@test.com",
-        });
+        const createdUserData = await orchestrator.createUser();
+        const createdUserData2 = await orchestrator.createUser();
 
         const response = await fetch(
-          `http://localhost:3000/api/v1/users/${user.username}`,
+          `http://localhost:3000/api/v1/users/${createdUserData.inputValues.username}`,
           {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              username: "testuser2",
+              username: createdUserData2.inputValues.username,
             }),
           },
         );
@@ -188,15 +162,10 @@ describe("PATCH /api/v1/users/{username}", () => {
       });
 
       test("Username invalid - empty", async () => {
-        const user = {
-          username: "testuser",
-          email: "email@test.com",
-          password: "test",
-        };
-        await orchestrator.createUser(user);
+        const createdUserData = await orchestrator.createUser();
 
         const response = await fetch(
-          `http://localhost:3000/api/v1/users/${user.username}`,
+          `http://localhost:3000/api/v1/users/${createdUserData.inputValues.username}`,
           {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
@@ -215,15 +184,10 @@ describe("PATCH /api/v1/users/{username}", () => {
       });
 
       test("Username invalid - with spaces", async () => {
-        const user = {
-          username: "testuser",
-          email: "email@test.com",
-          password: "test",
-        };
-        await orchestrator.createUser(user);
+        const createdUserData = await orchestrator.createUser();
 
         const response = await fetch(
-          `http://localhost:3000/api/v1/users/${user.username}`,
+          `http://localhost:3000/api/v1/users/${createdUserData.inputValues.username}`,
           {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
@@ -242,25 +206,16 @@ describe("PATCH /api/v1/users/{username}", () => {
       });
 
       test("Email already exists", async () => {
-        const user = {
-          username: "testuser",
-          email: "email@test.com",
-          password: "test",
-        };
-        await orchestrator.createUser(user);
-        await orchestrator.createUser({
-          ...user,
-          username: "testuser2",
-          email: "email2@test.com",
-        });
+        const createdUserData = await orchestrator.createUser();
+        const createdUserData2 = await orchestrator.createUser();
 
         const response = await fetch(
-          `http://localhost:3000/api/v1/users/${user.username}`,
+          `http://localhost:3000/api/v1/users/${createdUserData.inputValues.username}`,
           {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              email: "email2@test.com",
+              email: createdUserData2.inputValues.email,
             }),
           },
         );
@@ -272,15 +227,10 @@ describe("PATCH /api/v1/users/{username}", () => {
       });
 
       test("Email invalid - empty", async () => {
-        const user = {
-          username: "testuser",
-          email: "email@test.com",
-          password: "test",
-        };
-        await orchestrator.createUser(user);
+        const createdUserData = await orchestrator.createUser();
 
         const response = await fetch(
-          `http://localhost:3000/api/v1/users/${user.username}`,
+          `http://localhost:3000/api/v1/users/${createdUserData.inputValues.username}`,
           {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
@@ -299,15 +249,10 @@ describe("PATCH /api/v1/users/{username}", () => {
       });
 
       test("Email invalid - with spaces", async () => {
-        const user = {
-          username: "testuser",
-          email: "email@test.com",
-          password: "test",
-        };
-        await orchestrator.createUser(user);
+        const createdUserData = await orchestrator.createUser();
 
         const response = await fetch(
-          `http://localhost:3000/api/v1/users/${user.username}`,
+          `http://localhost:3000/api/v1/users/${createdUserData.inputValues.username}`,
           {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
