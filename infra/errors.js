@@ -91,3 +91,23 @@ export class NotFoundError extends Error {
     };
   }
 }
+
+export class UnauthorizedError extends Error {
+  constructor({ cause, message, action }) {
+    super(message || "Could not authenticate user.", {
+      cause: cause,
+    });
+    this.action = action || "Adjust the email and password and try again";
+    this.name = "UnauthorizedError";
+    this.statusCode = 401;
+  }
+
+  toJSON() {
+    return {
+      name: this.name,
+      message: this.message,
+      action: this.action,
+      status_code: this.statusCode,
+    };
+  }
+}
