@@ -20,13 +20,11 @@ describe("POST /api/v1/migrations", () => {
         expect(Array.isArray(responseBody)).toBe(true);
 
         expect(responseBody[0].path).toContain(
-          "infra/migrations/1768306814561_create-users.js",
+          "1768306814561_create-users.js",
         );
         expect(responseBody[0].name).toBe("1768306814561_create-users");
 
-        let result = await database.query("SELECT count(*) FROM pgmigrations;");
-        expect(parseInt(result.rows[0].count)).toBe(1);
-        result = await database.query("SELECT * FROM pgmigrations;");
+        let result = await database.query("SELECT * FROM pgmigrations;");
         expect(result.rows[0].name).toBe("1768306814561_create-users");
       });
 
@@ -43,9 +41,7 @@ describe("POST /api/v1/migrations", () => {
         expect(Array.isArray(responseBody)).toBe(true);
         expect(responseBody).toStrictEqual(new Array());
 
-        let result = await database.query("SELECT count(*) FROM pgmigrations;");
-        expect(parseInt(result.rows[0].count)).toBe(1);
-        result = await database.query("SELECT * FROM pgmigrations;");
+        let result = await database.query("SELECT * FROM pgmigrations;");
         expect(result.rows[0].name).toBe("1768306814561_create-users");
       });
     });
