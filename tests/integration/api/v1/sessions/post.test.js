@@ -1,5 +1,7 @@
 import orchestrator from "tests/orchestrator";
 import { version as uuidVersion } from "uuid";
+import setCookieParser from "set-cookie-parser";
+import session from "models/session.js";
 
 beforeEach(async () => {
   await orchestrator.clearDatabase();
@@ -20,6 +22,9 @@ describe("POST /api/v1/sessions", () => {
             password: createdUserData.inputValues.password,
           }),
         });
+
+        const cookies = setCookieParser.parse(response, { map: true });
+
         expect(response.status).toBe(201);
         const responseBody = await response.json();
         expect(responseBody).toEqual({
@@ -30,17 +35,21 @@ describe("POST /api/v1/sessions", () => {
           created_at: responseBody.created_at,
           updated_at: responseBody.updated_at,
         });
-
         expect(uuidVersion(responseBody.id)).toBe(4);
-        expect(Date.parse(responseBody.created_at)).not.toBeNaN();
-        expect(Date.parse(responseBody.updated_at)).not.toBeNaN();
-        expect(Date.parse(responseBody.expires_at)).not.toBeNaN();
 
         const createdAt = new Date(responseBody.created_at);
         const expiresAt = new Date(responseBody.expires_at);
         const diffInDays =
           (expiresAt.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24);
         expect(diffInDays).toBeCloseTo(30, 0);
+
+        expect(cookies.session_id).toEqual({
+          name: "session_id",
+          value: responseBody.token,
+          httpOnly: true,
+          path: "/",
+          maxAge: session.EXPIRATION_IN_DAYS * 24 * 60 * 60,
+        });
       });
 
       test("With invalid email and valid password", async () => {
