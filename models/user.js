@@ -91,6 +91,11 @@ async function update(username, userInputValues) {
   }
 }
 
+async function findOneById(id) {
+  const userFound = await queryById(id);
+  return userFound;
+}
+
 async function findOneByUsername(username) {
   const userFound = await queryByUsername(username);
   return userFound;
@@ -220,11 +225,36 @@ async function queryByEmail(email) {
   return results.rows[0];
 }
 
+async function queryById(id) {
+  const results = await database.query({
+    text: `
+    SELECT id, username, password, email, created_at, updated_at
+    FROM
+      users
+    WHERE
+      id = $1
+    LIMIT
+      1
+    ;`,
+    values: [id],
+  });
+
+  if (!results.rows[0]) {
+    throw new NotFoundError({
+      message: "User not found.",
+      action: "Please provide a already registered user.",
+    });
+  }
+
+  return results.rows[0];
+}
+
 const user = {
   create,
   update,
   findOneByUsername,
   findOneByEmail,
+  findOneById,
   removePasswordFromObject,
 };
 

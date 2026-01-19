@@ -4,6 +4,7 @@ import database from "../infra/database.js";
 import migrator from "../models/migrator.js";
 import user from "../models/user.js";
 import password from "../models/password.js";
+import session from "../models/session.js";
 
 async function waitForAllServices() {
   await waitForWebServer();
@@ -55,6 +56,10 @@ async function createUser(userInputValues = {}) {
   return createUserData;
 }
 
+async function createSession(userId) {
+  return await session.create(userId);
+}
+
 async function checkUserPasswordInDatabase(userInputValues) {
   const userInDatabase = await user.findOneByUsername(userInputValues.username);
   return await password.compare(
@@ -69,6 +74,7 @@ const orchestrator = {
   runningPendingMigrations,
   checkUserPasswordInDatabase,
   createUser,
+  createSession,
 };
 
 export default orchestrator;
