@@ -25,8 +25,8 @@ describe("GET /api/v1/users/{username}", () => {
           id: createUserData.createdUser.id,
           username: createUserData.inputValues.username,
           email: createUserData.inputValues.email,
-          created_at: `${new Date(createUserData.createdUser.created_at).toISOString()}`,
-          updated_at: `${new Date(createUserData.createdUser.updated_at).toISOString()}`,
+          created_at: createUserData.createdUser.created_at.toISOString(),
+          updated_at: createUserData.createdUser.updated_at.toISOString(),
         });
       });
 
@@ -47,8 +47,8 @@ describe("GET /api/v1/users/{username}", () => {
           id: createUserData.createdUser.id,
           username: "testuser",
           email: createUserData.inputValues.email,
-          created_at: `${new Date(createUserData.createdUser.created_at).toISOString()}`,
-          updated_at: `${new Date(createUserData.createdUser.updated_at).toISOString()}`,
+          created_at: createUserData.createdUser.created_at.toISOString(),
+          updated_at: createUserData.createdUser.updated_at.toISOString(),
         });
       });
 
