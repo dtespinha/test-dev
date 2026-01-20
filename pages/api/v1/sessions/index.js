@@ -11,9 +11,17 @@ router.delete(deleteHandler);
 export default router.handler(controller.errorHandlers);
 
 async function postHandler(request, response) {
+  const { email, password } = request.body || {};
+
+  if (email == null || password == null) {
+    return response
+      .status(400)
+      .json({ error: "Email and password are required." });
+  }
+
   const authenticateUser = await authentication.authenticateUser(
-    request.body.email,
-    request.body.password,
+    email,
+    password,
   );
   const newSession = await session.create(authenticateUser.id);
 
@@ -25,13 +33,17 @@ async function postHandler(request, response) {
 
 async function deleteHandler(request, response) {
   const sessionToken = request.cookies.session_id;
+
+  if (!sessionToken) {
+    return response
+      .status(401)
+      .json({ error: "Session cookie is missing" });
+  }
   const validSession = await session.validate(sessionToken);
 
   const revokedSession = await session.revoke(validSession.id);
 
   controller.clearSessionCookie(response);
 
-  return response
-    .status(200)
-    .json(await user.removePasswordFromObject(revokedSession));
+  return response.status(200).json(revokedSession);
 }

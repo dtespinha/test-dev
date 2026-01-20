@@ -49,11 +49,11 @@ async function createUser(userInputValues = {}) {
     password,
   };
   const createdUser = await user.create({ ...inputValues });
-  const createUserData = {
+  const createdUserData = {
     inputValues: inputValues,
     createdUser: createdUser,
   };
-  return createUserData;
+  return createdUserData;
 }
 
 async function createSession(userId) {
