@@ -7,7 +7,7 @@ beforeEach(async () => {
   await orchestrator.runningPendingMigrations();
 });
 
-describe("DELETE /api/v1/user", () => {
+describe("DELETE /api/v1/sessions", () => {
   describe("Logged user", () => {
     describe("Delete session", () => {
       test("With valid session", async () => {

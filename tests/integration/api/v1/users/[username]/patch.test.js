@@ -85,7 +85,7 @@ describe("PATCH /api/v1/users/{username}", () => {
         const createdUserData = await orchestrator.createUser();
 
         const response = await fetch(
-          `http://localhost:3000/api/v1/users//${createdUserData.inputValues.username}`,
+          `http://localhost:3000/api/v1/users/${createdUserData.inputValues.username}`,
           {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
