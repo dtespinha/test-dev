@@ -1,7 +1,7 @@
 import { createRouter } from "next-connect";
 import controller from "infra/controller";
 import user from "models/user.js";
-import session from "models/session";
+import session from "models/session.js";
 
 const router = createRouter();
 router.get(getHandler);
@@ -9,7 +9,12 @@ router.get(getHandler);
 export default router.handler(controller.errorHandlers);
 
 async function getHandler(request, response) {
-  const validSession = await session.validate(request.cookies.session_id);
+  const sessionId = request.cookies && request.cookies.session_id;
+  if (!sessionId) {
+    return response.status(401).json({ error: "Missing session cookie" });
+  }
+
+  const validSession = await session.validate(sessionId);
   const renewedSessionObject = await session.renew(validSession.id);
   const userWithValidSession = await user.findOneById(validSession.user_id);
 

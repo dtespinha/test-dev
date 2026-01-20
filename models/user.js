@@ -5,8 +5,8 @@ import { ValidationError, NotFoundError } from "../infra/errors.js";
 async function create(userInputValues) {
   await validateUniqueUsername(userInputValues.username);
   await validateUsername(userInputValues.username);
-  await validateUniqueEmail(userInputValues.email);
   await validateEmail(userInputValues.email);
+  await validateUniqueEmail(userInputValues.email);
   await validatePassword(userInputValues.password);
 
   await hashPasswordInObject(userInputValues);
@@ -108,8 +108,8 @@ async function findOneByEmail(email) {
 
 async function removePasswordFromObject(user) {
   // eslint-disable-next-line no-unused-vars
-  const { password, ...userwithoutPassword } = user;
-  return userwithoutPassword;
+  const { password, ...userWithoutPassword } = user;
+  return userWithoutPassword;
 }
 
 async function validateEmail(email) {

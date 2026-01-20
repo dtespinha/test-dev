@@ -415,28 +415,28 @@ describe("POST /api/v1/users", () => {
         );
         expect(responseBody.status_code).toBe(400);
       });
+
+      test("Invalid password - contains more than 72 characters", async () => {
+        let response = await fetch("http://localhost:3000/api/v1/users", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            username: "test",
+            email: "test@test.com",
+            password:
+              "passwordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpasswordp",
+          }),
+        });
+
+        expect(response.status).toBe(400);
+
+        const responseBody = await response.json();
+        expect(responseBody.message).toBe("Password is invalid.");
+        expect(responseBody.action).toBe(
+          "Please provide a password with less than 72 characters.",
+        );
+        expect(responseBody.status_code).toBe(400);
+      });
     });
   });
-});
-
-test("Invalid password - contains more than 72 characters", async () => {
-  let response = await fetch("http://localhost:3000/api/v1/users", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      username: "test",
-      email: "test@test.com",
-      password:
-        "passwordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpasswordp",
-    }),
-  });
-
-  expect(response.status).toBe(400);
-
-  const responseBody = await response.json();
-  expect(responseBody.message).toBe("Password is invalid.");
-  expect(responseBody.action).toBe(
-    "Please provide a password with less than 72 characters.",
-  );
-  expect(responseBody.status_code).toBe(400);
 });
