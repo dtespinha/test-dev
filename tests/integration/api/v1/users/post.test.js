@@ -284,9 +284,7 @@ describe("POST /api/v1/users", () => {
 
         const responseBody = await response.json();
         expect(responseBody.message).toBe("Password is invalid.");
-        expect(responseBody.action).toBe(
-          "Please provide a password between 8 and 72 characters long.",
-        );
+        expect(responseBody.action).toBe("Password cannot be empty.");
         expect(responseBody.status_code).toBe(400);
       });
 
