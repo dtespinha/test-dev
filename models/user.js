@@ -152,7 +152,14 @@ async function validateUsername(username) {
 }
 
 async function validatePassword(password) {
-  if (password.length > 72 || !password) {
+  if (!password) {
+    throw new ValidationError({
+      message: "Password is invalid.",
+      action: "Password cannot be empty.",
+    });
+  }
+
+  if (password.length > 72) {
     throw new ValidationError({
       message: "Password is invalid.",
       action: "Please provide a password with less than 72 characters.",
