@@ -13,7 +13,12 @@ async function getHandler(request, response) {
   const renewedSessionObject = await session.renew(validSession.id);
   const userWithValidSession = await user.findOneById(validSession.user_id);
 
-  controller.setSessionCookie(renewedSessionObject.token, response);
+  // Time in seconds
+  controller.setSessionCookie(
+    renewedSessionObject.token,
+    session.EXPIRATION_IN_DAYS * 24 * 60 * 60,
+    response,
+  );
 
   response.setHeader(
     "Cache-Control",

@@ -39,6 +39,7 @@ describe("POST /api/v1/sessions", () => {
 
         const createdAt = new Date(responseBody.created_at);
         const expiresAt = new Date(responseBody.expires_at);
+        expect(expiresAt > createdAt).toBe(true);
         const diffInDays =
           (expiresAt.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24);
         expect(diffInDays).toBeCloseTo(30, 0);

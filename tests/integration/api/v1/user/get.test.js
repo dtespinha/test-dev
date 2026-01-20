@@ -9,7 +9,7 @@ beforeEach(async () => {
 
 describe("GET /api/v1/user", () => {
   describe("Logged user", () => {
-    describe("Search for user data", () => {
+    describe("Renew user session", () => {
       test("With valid session", async () => {
         const createdUserData = await orchestrator.createUser({
           username: "userwithvalidsession",
