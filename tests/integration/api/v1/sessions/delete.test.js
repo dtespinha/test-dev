@@ -50,6 +50,7 @@ describe("DELETE /api/v1/sessions", () => {
           httpOnly: true,
           path: "/",
           maxAge: -1,
+          sameSite: "Lax",
         });
 
         response = await fetch(`http://localhost:3000/api/v1/user`, {

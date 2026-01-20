@@ -1,6 +1,6 @@
-import database from "../infra/database";
+import database from "../infra/database.js";
 import crypto from "node:crypto";
-import { UnauthorizedError } from "../infra/errors";
+import { UnauthorizedError } from "../infra/errors.js";
 
 const EXPIRATION_IN_DAYS = 30;
 

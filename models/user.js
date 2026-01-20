@@ -108,8 +108,8 @@ async function findOneByEmail(email) {
 
 async function removePasswordFromObject(user) {
   // eslint-disable-next-line no-unused-vars
-  const { password, ...userwithoutPassword } = user;
-  return userwithoutPassword;
+  const { password, ...userWithoutPassword } = user;
+  return userWithoutPassword;
 }
 
 async function validateEmail(email) {
