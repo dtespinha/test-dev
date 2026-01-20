@@ -42,6 +42,7 @@ function setSessionCookie(token, response) {
       httpOnly: true,
       // Only set secure flag in production to allow HTTP in development
       secure: process.env.NODE_ENV === "production",
+      sameSite: "Lax",
     }),
   );
 }
