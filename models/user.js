@@ -3,10 +3,10 @@ import password from "../models/password.js";
 import { ValidationError, NotFoundError } from "../infra/errors.js";
 
 async function create(userInputValues) {
-  await validateUniqueUsername(userInputValues.username);
   await validateUsername(userInputValues.username);
-  await validateUniqueEmail(userInputValues.email);
+  await validateUniqueUsername(userInputValues.username);
   await validateEmail(userInputValues.email);
+  await validateUniqueEmail(userInputValues.email);
   await validatePassword(userInputValues.password);
 
   await hashPasswordInObject(userInputValues);
