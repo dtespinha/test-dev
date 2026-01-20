@@ -2,7 +2,6 @@ import { createRouter } from "next-connect";
 import controller from "infra/controller";
 import authentication from "models/authentication.js";
 import session from "models/session.js";
-import user from "models/user.js";
 
 const router = createRouter();
 router.post(postHandler);
@@ -35,9 +34,7 @@ async function deleteHandler(request, response) {
   const sessionToken = request.cookies.session_id;
 
   if (!sessionToken) {
-    return response
-      .status(401)
-      .json({ error: "Session cookie is missing" });
+    return response.status(401).json({ error: "Session cookie is missing" });
   }
   const validSession = await session.validate(sessionToken);
 
