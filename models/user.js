@@ -42,11 +42,11 @@ async function update(username, userInputValues) {
   const userFound = await queryByUsername(username);
 
   if ("username" in userInputValues) {
-    await validateUniqueUsername(userInputValues.username);
+    await validateUniqueUsername(userInputValues.username, userFound.id);
     await validateUsername(userInputValues.username);
   }
   if ("email" in userInputValues) {
-    await validateUniqueEmail(userInputValues.email);
+    await validateUniqueEmail(userInputValues.email, userFound.id);
     await validateEmail(userInputValues.email);
   }
   if ("password" in userInputValues) {
@@ -113,10 +113,17 @@ async function removePasswordFromObject(user) {
 }
 
 async function validateEmail(email) {
+  if (!email) {
+    throw new ValidationError({
+      message: "Email is invalid.",
+      action: "Please provide a valid email address.",
+    });
+  }
+
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const isValid = emailRegex.test(email) && email.length <= 254;
 
-  if (!isValid || !email) {
+  if (!isValid) {
     throw new ValidationError({
       message: "Email is invalid.",
       action: "Please provide a valid email address.",
@@ -125,9 +132,17 @@ async function validateEmail(email) {
 }
 
 async function validateUsername(username) {
+  if (!username) {
+    throw new ValidationError({
+      message: "Username is invalid.",
+      action:
+        "Username must be 3-20 characters long and contain only letters, numbers, and underscores.",
+    });
+  }
+
   const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
 
-  if (!usernameRegex.test(username) || !username) {
+  if (!usernameRegex.test(username)) {
     throw new ValidationError({
       message: "Username is invalid.",
       action:
@@ -145,13 +160,22 @@ async function validatePassword(password) {
   }
 }
 
-async function validateUniqueUsername(username) {
-  const results = await database.query({
-    text: `
-      SELECT id FROM users WHERE LOWER(username) = LOWER($1);
-    `,
-    values: [username],
-  });
+async function validateUniqueUsername(username, excludeUserId = null) {
+  const query = excludeUserId
+    ? {
+        text: `
+          SELECT id FROM users WHERE LOWER(username) = LOWER($1) AND id != $2;
+        `,
+        values: [username, excludeUserId],
+      }
+    : {
+        text: `
+          SELECT id FROM users WHERE LOWER(username) = LOWER($1);
+        `,
+        values: [username],
+      };
+
+  const results = await database.query(query);
 
   if (results.rowCount > 0) {
     throw new ValidationError({
@@ -161,13 +185,22 @@ async function validateUniqueUsername(username) {
   }
 }
 
-async function validateUniqueEmail(email) {
-  const results = await database.query({
-    text: `
-      SELECT id FROM users WHERE LOWER(email) = LOWER($1);
-    `,
-    values: [email],
-  });
+async function validateUniqueEmail(email, excludeUserId = null) {
+  const query = excludeUserId
+    ? {
+        text: `
+          SELECT id FROM users WHERE LOWER(email) = LOWER($1) AND id != $2;
+        `,
+        values: [email, excludeUserId],
+      }
+    : {
+        text: `
+          SELECT id FROM users WHERE LOWER(email) = LOWER($1);
+        `,
+        values: [email],
+      };
+
+  const results = await database.query(query);
 
   if (results.rowCount > 0) {
     throw new ValidationError({
@@ -194,7 +227,7 @@ async function queryByUsername(username) {
   if (!results.rows[0]) {
     throw new NotFoundError({
       message: "User not found.",
-      action: "Please provide a already registered user.",
+      action: "Please provide an already registered user.",
     });
   }
 
@@ -218,7 +251,7 @@ async function queryByEmail(email) {
   if (!results.rows[0]) {
     throw new NotFoundError({
       message: "Email not found.",
-      action: "Please provide a already registered email.",
+      action: "Please provide an already registered email.",
     });
   }
 
@@ -242,7 +275,7 @@ async function queryById(id) {
   if (!results.rows[0]) {
     throw new NotFoundError({
       message: "User not found.",
-      action: "Please provide a already registered user.",
+      action: "Please provide an already registered user.",
     });
   }
 

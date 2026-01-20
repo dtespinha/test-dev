@@ -40,6 +40,7 @@ function setSessionCookie(token, response) {
       path: "/",
       maxAge: session.EXPIRATION_IN_DAYS * 24 * 60 * 60,
       httpOnly: true,
+      // Only set secure flag in production to allow HTTP in development
       secure: process.env.NODE_ENV === "production",
     }),
   );
