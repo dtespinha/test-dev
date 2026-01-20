@@ -179,7 +179,7 @@ describe("POST /api/v1/users", () => {
         expect(response.status).toBe(400);
 
         const responseBody = await response.json();
-        expect(responseBody.message).toBe("Username is invalid.");
+        expect(responseBody.message).toBe("Username is required.");
         expect(responseBody.action).toBe(
           "Username must be 3-20 characters long and contain only letters, numbers, and underscores.",
         );
@@ -262,7 +262,7 @@ describe("POST /api/v1/users", () => {
         expect(response.status).toBe(400);
 
         const responseBody = await response.json();
-        expect(responseBody.message).toBe("Email is invalid.");
+        expect(responseBody.message).toBe("Email is required.");
         expect(responseBody.action).toBe(
           "Please provide a valid email address.",
         );
