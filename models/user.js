@@ -42,12 +42,12 @@ async function update(username, userInputValues) {
   const userFound = await queryByUsername(username);
 
   if ("username" in userInputValues) {
-    await validateUniqueUsername(userInputValues.username, userFound.id);
     await validateUsername(userInputValues.username);
+    await validateUniqueUsername(userInputValues.username, userFound.id);
   }
   if ("email" in userInputValues) {
-    await validateUniqueEmail(userInputValues.email, userFound.id);
     await validateEmail(userInputValues.email);
+    await validateUniqueEmail(userInputValues.email, userFound.id);
   }
   if ("password" in userInputValues) {
     await validatePassword(userInputValues.password);
@@ -115,7 +115,7 @@ async function removePasswordFromObject(user) {
 async function validateEmail(email) {
   if (!email) {
     throw new ValidationError({
-      message: "Email is invalid.",
+      message: "Email is required.",
       action: "Please provide a valid email address.",
     });
   }
@@ -134,7 +134,7 @@ async function validateEmail(email) {
 async function validateUsername(username) {
   if (!username) {
     throw new ValidationError({
-      message: "Username is invalid.",
+      message: "Username is required.",
       action:
         "Username must be 3-20 characters long and contain only letters, numbers, and underscores.",
     });
