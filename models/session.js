@@ -6,7 +6,7 @@ const EXPIRATION_IN_DAYS = 30;
 
 async function create(userId) {
   const token = generateToken();
-  const expiresAt = getDateFutureDateByDays(EXPIRATION_IN_DAYS);
+  const expiresAt = getFutureDateByDays(EXPIRATION_IN_DAYS);
 
   const newSession = await runInsertQuery(token, userId, expiresAt);
 
@@ -64,7 +64,7 @@ async function validate(token) {
 }
 
 async function renew(sessionId) {
-  const extendedExpiresAt = getDateFutureDateByDays(EXPIRATION_IN_DAYS);
+  const extendedExpiresAt = getFutureDateByDays(EXPIRATION_IN_DAYS);
   const renewedSession = await runUpdateQuery(sessionId, extendedExpiresAt);
   return renewedSession;
 
@@ -110,7 +110,7 @@ async function revoke(sessionId) {
   }
 }
 
-function getDateFutureDateByDays(days = 0) {
+function getFutureDateByDays(days = 0) {
   const date = new Date();
   date.setDate(date.getDate() + days);
   return date;
