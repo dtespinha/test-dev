@@ -133,7 +133,7 @@ describe("PATCH /api/v1/users/{username}", () => {
         const responseBody = await response.json();
         expect(responseBody.message).toBe("User not found.");
         expect(responseBody.action).toBe(
-          "Please provide a already registered user.",
+          "Please provide an already registered user.",
         );
         expect(responseBody.status_code).toBe(404);
       });
