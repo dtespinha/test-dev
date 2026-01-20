@@ -1,6 +1,10 @@
-import database from "../infra/database.js";
+import { fakerPT_BR as faker } from "@faker-js/faker";
 import retry from "async-retry";
+import database from "../infra/database.js";
 import migrator from "../models/migrator.js";
+import user from "../models/user.js";
+import password from "../models/password.js";
+import session from "../models/session.js";
 
 async function waitForAllServices() {
   await waitForWebServer();
@@ -29,26 +33,49 @@ async function runningPendingMigrations() {
   await migrator.runPendingMigrations();
 }
 
-async function createUser(user) {
-  const results = await database.query({
-    text: `
-    INSERT INTO 
-      users (username, email, password)
-    VALUES 
-      (LOWER($1), LOWER($2), $3)
-    RETURNING
-      *
-    ;`,
-    values: [user.username, user.email, user.password],
-  });
-  return results.rows[0];
+async function createUser(userInputValues = {}) {
+  const username = (
+    userInputValues.username ||
+    faker.internet
+      .username()
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, "")
+  ).slice(0, 20);
+  const email = userInputValues.email || faker.internet.email().toLowerCase();
+  const password =
+    userInputValues.password || faker.internet.password({ length: 12 });
+  const inputValues = {
+    username,
+    email,
+    password,
+  };
+  const createdUser = await user.create({ ...inputValues });
+  const createdUserData = {
+    inputValues: inputValues,
+    createdUser: createdUser,
+  };
+  return createdUserData;
+}
+
+async function createSession(userId) {
+  return await session.create(userId);
+}
+
+async function checkUserPasswordInDatabase(userInputValues) {
+  const userInDatabase = await user.findOneByUsername(userInputValues.username);
+  return await password.compare(
+    userInputValues.password,
+    userInDatabase.password,
+  );
 }
 
 const orchestrator = {
   waitForAllServices,
   clearDatabase,
   runningPendingMigrations,
+  checkUserPasswordInDatabase,
   createUser,
+  createSession,
 };
 
 export default orchestrator;

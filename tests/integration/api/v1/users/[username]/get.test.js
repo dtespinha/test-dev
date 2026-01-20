@@ -12,21 +12,21 @@ describe("GET /api/v1/users/{username}", () => {
         const user = {
           username: "testuser",
           email: "email@test.com",
-          password: "test",
+          password: "testpassword",
         };
-        const createdUser = await orchestrator.createUser(user);
+        const createUserData = await orchestrator.createUser(user);
 
         const response = await fetch(
-          `http://localhost:3000/api/v1/users/${user.username}`,
+          `http://localhost:3000/api/v1/users/${createUserData.inputValues.username}`,
         );
         expect(response.status).toBe(200);
         const responseBody = await response.json();
         expect(responseBody).toEqual({
-          id: createdUser.id,
-          username: user.username,
-          email: user.email,
-          created_at: `${new Date(createdUser.created_at).toISOString()}`,
-          updated_at: `${new Date(createdUser.updated_at).toISOString()}`,
+          id: createUserData.createdUser.id,
+          username: createUserData.inputValues.username,
+          email: createUserData.inputValues.email,
+          created_at: createUserData.createdUser.created_at.toISOString(),
+          updated_at: createUserData.createdUser.updated_at.toISOString(),
         });
       });
 
@@ -34,21 +34,21 @@ describe("GET /api/v1/users/{username}", () => {
         const user = {
           username: "Testuser",
           email: "email@test.com",
-          password: "test",
+          password: "testpassword",
         };
-        const createdUser = await orchestrator.createUser(user);
+        const createUserData = await orchestrator.createUser(user);
 
         const response = await fetch(
-          `http://localhost:3000/api/v1/users/${user.username}`,
+          `http://localhost:3000/api/v1/users/${createUserData.inputValues.username}`,
         );
         expect(response.status).toBe(200);
         const responseBody = await response.json();
         expect(responseBody).toEqual({
-          id: createdUser.id,
+          id: createUserData.createdUser.id,
           username: "testuser",
-          email: user.email,
-          created_at: `${new Date(createdUser.created_at).toISOString()}`,
-          updated_at: `${new Date(createdUser.updated_at).toISOString()}`,
+          email: createUserData.inputValues.email,
+          created_at: createUserData.createdUser.created_at.toISOString(),
+          updated_at: createUserData.createdUser.updated_at.toISOString(),
         });
       });
 
@@ -61,7 +61,7 @@ describe("GET /api/v1/users/{username}", () => {
         expect(response.status).toBe(404);
         expect(responseBody.message).toBe("User not found.");
         expect(responseBody.action).toBe(
-          "Please provide a already registered user.",
+          "Please provide an already registered user.",
         );
         expect(responseBody.status_code).toBe(404);
       });

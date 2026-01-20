@@ -10,43 +10,183 @@ describe("POST /api/v1/users", () => {
   describe("Anonymous user", () => {
     describe("Create an user", () => {
       test("With unique data", async () => {
+        const userInputValues = {
+          username: "testuser",
+          email: "test@test.com",
+          password: "password",
+        };
         const response = await fetch("http://localhost:3000/api/v1/users", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            username: "testuser",
-            email: "test@test.com",
-            password: "password",
-          }),
+          body: JSON.stringify(userInputValues),
         });
         expect(response.status).toBe(201);
         const responseBody = await response.json();
         expect(responseBody).toEqual({
           id: responseBody.id,
-          username: "testuser",
-          email: "test@test.com",
-          password: responseBody.password,
+          username: userInputValues.username,
+          email: userInputValues.email,
           created_at: responseBody.created_at,
           updated_at: responseBody.updated_at,
         });
 
+        const correctPasswordMatch =
+          await orchestrator.checkUserPasswordInDatabase(userInputValues);
+        expect(correctPasswordMatch).toBe(true);
         expect(uuidVersion(responseBody.id)).toBe(4);
         expect(Date.parse(responseBody.created_at)).not.toBeNaN();
         expect(Date.parse(responseBody.updated_at)).not.toBeNaN();
       });
 
       test("With unique data - username starts with number", async () => {
+        const userInputValues = {
+          username: "1test",
+          email: "test@test.com",
+          password: "password",
+        };
         let response = await fetch("http://localhost:3000/api/v1/users", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            username: "1test",
-            email: "test@test.com",
-            password: "SecurePass123",
-          }),
+          body: JSON.stringify(userInputValues),
         });
 
         expect(response.status).toBe(201);
+        const responseBody = await response.json();
+        expect(responseBody).toEqual({
+          id: responseBody.id,
+          username: userInputValues.username,
+          email: userInputValues.email,
+          created_at: responseBody.created_at,
+          updated_at: responseBody.updated_at,
+        });
+
+        const correctPasswordMatch =
+          await orchestrator.checkUserPasswordInDatabase(userInputValues);
+        expect(correctPasswordMatch).toBe(true);
+        expect(uuidVersion(responseBody.id)).toBe(4);
+        expect(Date.parse(responseBody.created_at)).not.toBeNaN();
+        expect(Date.parse(responseBody.updated_at)).not.toBeNaN();
+      });
+
+      test("With unique data - username with maximum allowed size", async () => {
+        const userInputValues = {
+          username: "abcdefghijklmnopqrst",
+          email: "test@test.com",
+          password: "password",
+        };
+        let response = await fetch("http://localhost:3000/api/v1/users", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(userInputValues),
+        });
+
+        expect(response.status).toBe(201);
+        const responseBody = await response.json();
+        expect(responseBody).toEqual({
+          id: responseBody.id,
+          username: userInputValues.username,
+          email: userInputValues.email,
+          created_at: responseBody.created_at,
+          updated_at: responseBody.updated_at,
+        });
+
+        const correctPasswordMatch =
+          await orchestrator.checkUserPasswordInDatabase(userInputValues);
+        expect(correctPasswordMatch).toBe(true);
+        expect(uuidVersion(responseBody.id)).toBe(4);
+        expect(Date.parse(responseBody.created_at)).not.toBeNaN();
+        expect(Date.parse(responseBody.updated_at)).not.toBeNaN();
+      });
+
+      test("With unique data - username with minimum allowed size", async () => {
+        const userInputValues = {
+          username: "abc",
+          email: "test@test.com",
+          password: "password",
+        };
+        let response = await fetch("http://localhost:3000/api/v1/users", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(userInputValues),
+        });
+
+        expect(response.status).toBe(201);
+        const responseBody = await response.json();
+        expect(responseBody).toEqual({
+          id: responseBody.id,
+          username: userInputValues.username,
+          email: userInputValues.email,
+          created_at: responseBody.created_at,
+          updated_at: responseBody.updated_at,
+        });
+
+        const correctPasswordMatch =
+          await orchestrator.checkUserPasswordInDatabase(userInputValues);
+        expect(correctPasswordMatch).toBe(true);
+        expect(uuidVersion(responseBody.id)).toBe(4);
+        expect(Date.parse(responseBody.created_at)).not.toBeNaN();
+        expect(Date.parse(responseBody.updated_at)).not.toBeNaN();
+      });
+
+      test("With unique data - password with maximum allowed size", async () => {
+        const userInputValues = {
+          username: "testuser",
+          email: "test@test.com",
+          password:
+            "passwordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpassword",
+        };
+        let response = await fetch("http://localhost:3000/api/v1/users", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(userInputValues),
+        });
+
+        expect(response.status).toBe(201);
+        const responseBody = await response.json();
+        expect(responseBody).toEqual({
+          id: responseBody.id,
+          username: userInputValues.username,
+          email: userInputValues.email,
+          created_at: responseBody.created_at,
+          updated_at: responseBody.updated_at,
+        });
+
+        const correctPasswordMatch =
+          await orchestrator.checkUserPasswordInDatabase(userInputValues);
+        expect(correctPasswordMatch).toBe(true);
+        expect(uuidVersion(responseBody.id)).toBe(4);
+        expect(Date.parse(responseBody.created_at)).not.toBeNaN();
+        expect(Date.parse(responseBody.updated_at)).not.toBeNaN();
+      });
+
+      test("With unique data - password with minimum allowed size", async () => {
+        const userInputValues = {
+          username: "testuser",
+          email: "test@test.com",
+          password: "password",
+        };
+        let response = await fetch("http://localhost:3000/api/v1/users", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(userInputValues),
+        });
+
+        expect(response.status).toBe(201);
+        const responseBody = await response.json();
+        expect(responseBody).toEqual({
+          id: responseBody.id,
+          username: userInputValues.username,
+          email: userInputValues.email,
+          created_at: responseBody.created_at,
+          updated_at: responseBody.updated_at,
+        });
+
+        const correctPasswordMatch =
+          await orchestrator.checkUserPasswordInDatabase(userInputValues);
+        expect(correctPasswordMatch).toBe(true);
+        expect(uuidVersion(responseBody.id)).toBe(4);
+        expect(Date.parse(responseBody.created_at)).not.toBeNaN();
+        expect(Date.parse(responseBody.updated_at)).not.toBeNaN();
       });
 
       test("Username already exists", async () => {
@@ -75,9 +215,9 @@ describe("POST /api/v1/users", () => {
         expect(response.status).toBe(400);
 
         const responseBody = await response.json();
-        expect(responseBody.message).toBe("Username or Email already exists.");
+        expect(responseBody.message).toBe("Username already exists.");
         expect(responseBody.action).toBe(
-          "Try creating with a different value.",
+          "Please provide a different username.",
         );
         expect(responseBody.status_code).toBe(400);
       });
@@ -108,9 +248,9 @@ describe("POST /api/v1/users", () => {
         expect(response.status).toBe(400);
 
         const responseBody = await response.json();
-        expect(responseBody.message).toBe("Username or Email already exists.");
+        expect(responseBody.message).toBe("Username already exists.");
         expect(responseBody.action).toBe(
-          "Try creating with a different value.",
+          "Please provide a different username.",
         );
         expect(responseBody.status_code).toBe(400);
       });
@@ -129,8 +269,10 @@ describe("POST /api/v1/users", () => {
         expect(response.status).toBe(400);
 
         const responseBody = await response.json();
-        expect(responseBody.message).toBe("Username is empty.");
-        expect(responseBody.action).toBe("Username must have a value.");
+        expect(responseBody.message).toBe("Username is required.");
+        expect(responseBody.action).toBe(
+          "Username must be 3-20 characters long and contain only letters, numbers, and underscores.",
+        );
         expect(responseBody.status_code).toBe(400);
       });
 
@@ -160,10 +302,8 @@ describe("POST /api/v1/users", () => {
         expect(response.status).toBe(400);
 
         const responseBody = await response.json();
-        expect(responseBody.message).toBe("Username or Email already exists.");
-        expect(responseBody.action).toBe(
-          "Try creating with a different value.",
-        );
+        expect(responseBody.message).toBe("Email already exists.");
+        expect(responseBody.action).toBe("Please provide a different email.");
         expect(responseBody.status_code).toBe(400);
       });
 
@@ -193,10 +333,8 @@ describe("POST /api/v1/users", () => {
         expect(response.status).toBe(400);
 
         const responseBody = await response.json();
-        expect(responseBody.message).toBe("Username or Email already exists.");
-        expect(responseBody.action).toBe(
-          "Try creating with a different value.",
-        );
+        expect(responseBody.message).toBe("Email already exists.");
+        expect(responseBody.action).toBe("Please provide a different email.");
         expect(responseBody.status_code).toBe(400);
       });
 
@@ -214,8 +352,10 @@ describe("POST /api/v1/users", () => {
         expect(response.status).toBe(400);
 
         const responseBody = await response.json();
-        expect(responseBody.message).toBe("Email is empty.");
-        expect(responseBody.action).toBe("Email must have a value.");
+        expect(responseBody.message).toBe("Email is required.");
+        expect(responseBody.action).toBe(
+          "Please provide a valid email address.",
+        );
         expect(responseBody.status_code).toBe(400);
       });
 
@@ -233,8 +373,8 @@ describe("POST /api/v1/users", () => {
         expect(response.status).toBe(400);
 
         const responseBody = await response.json();
-        expect(responseBody.message).toBe("Password is empty.");
-        expect(responseBody.action).toBe("Password must have a value.");
+        expect(responseBody.message).toBe("Password is invalid.");
+        expect(responseBody.action).toBe("Password cannot be empty.");
         expect(responseBody.status_code).toBe(400);
       });
 
@@ -360,6 +500,49 @@ describe("POST /api/v1/users", () => {
         expect(responseBody.message).toBe("Email is invalid.");
         expect(responseBody.action).toBe(
           "Please provide a valid email address.",
+        );
+        expect(responseBody.status_code).toBe(400);
+      });
+
+      test("Invalid password - contains more than 72 characters", async () => {
+        let response = await fetch("http://localhost:3000/api/v1/users", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            username: "test",
+            email: "test@test.com",
+            password:
+              "passwordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpasswordp",
+          }),
+        });
+
+        expect(response.status).toBe(400);
+
+        const responseBody = await response.json();
+        expect(responseBody.message).toBe("Password is invalid.");
+        expect(responseBody.action).toBe(
+          "Please provide a password between 8 and 72 characters long.",
+        );
+        expect(responseBody.status_code).toBe(400);
+      });
+
+      test("Invalid password - contains less than 8 characters", async () => {
+        let response = await fetch("http://localhost:3000/api/v1/users", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            username: "test",
+            email: "test@test.com",
+            password: "passwor",
+          }),
+        });
+
+        expect(response.status).toBe(400);
+
+        const responseBody = await response.json();
+        expect(responseBody.message).toBe("Password is invalid.");
+        expect(responseBody.action).toBe(
+          "Please provide a password between 8 and 72 characters long.",
         );
         expect(responseBody.status_code).toBe(400);
       });
