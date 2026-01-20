@@ -22,10 +22,12 @@ exports.up = (pgm) => {
     created_at: {
       type: "timestamptz",
       default: pgm.func("timezone('utc', now())"),
+      notNull: true,
     },
     updated_at: {
       type: "timestamptz",
       default: pgm.func("timezone('utc', now())"),
+      notNull: true,
     },
   });
 };
