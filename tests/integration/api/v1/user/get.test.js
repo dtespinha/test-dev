@@ -116,6 +116,16 @@ describe("GET /api/v1/user", () => {
         });
 
         expect(response.status).toBe(401);
+
+        const cookies = setCookieParser.parse(response, { map: true });
+        expect(cookies.session_id).toEqual({
+          name: "session_id",
+          value: "invalid",
+          httpOnly: true,
+          path: "/",
+          maxAge: -1,
+        });
+
         const responseBody = await response.json();
         expect(responseBody.message).toBe("Session verification failed.");
         expect(responseBody.action).toBe("Verify provided token.");

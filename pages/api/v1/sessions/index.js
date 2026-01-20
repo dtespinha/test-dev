@@ -18,11 +18,7 @@ async function postHandler(request, response) {
   const newSession = await session.create(authenticateUser.id);
 
   // Time in seconds
-  controller.setSessionCookie(
-    newSession.token,
-    session.EXPIRATION_IN_DAYS * 24 * 60 * 60,
-    response,
-  );
+  controller.setSessionCookie(newSession.token, response);
 
   return response.status(201).json(newSession);
 }
@@ -33,7 +29,7 @@ async function deleteHandler(request, response) {
 
   const revokedSession = await session.revoke(validSession.id);
 
-  controller.setSessionCookie("invalid", -1, response);
+  controller.clearSessionCookie(response);
 
   return response
     .status(200)

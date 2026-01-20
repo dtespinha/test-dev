@@ -9,11 +9,12 @@ import {
 import session from "models/session";
 
 async function onErrorHandler(error, request, response) {
-  if (
-    error instanceof ValidationError ||
-    error instanceof NotFoundError ||
-    error instanceof UnauthorizedError
-  ) {
+  if (error instanceof ValidationError || error instanceof NotFoundError) {
+    return response.status(error.statusCode).json(error);
+  }
+
+  if (error instanceof UnauthorizedError) {
+    clearSessionCookie(response);
     return response.status(error.statusCode).json(error);
   }
 
@@ -32,12 +33,24 @@ async function onNoMatchHandler(request, response) {
   response.status(publicErrorObject.statusCode).json(publicErrorObject);
 }
 
-function setSessionCookie(token, maxAge, response) {
+function setSessionCookie(token, response) {
   response.setHeader(
     "Set-Cookie",
     cookie.serialize("session_id", token, {
       path: "/",
-      maxAge: maxAge,
+      maxAge: session.EXPIRATION_IN_DAYS * 24 * 60 * 60,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+    }),
+  );
+}
+
+function clearSessionCookie(response) {
+  response.setHeader(
+    "Set-Cookie",
+    cookie.serialize("session_id", "invalid", {
+      path: "/",
+      maxAge: -1,
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
     }),
@@ -50,6 +63,7 @@ const controller = {
     onNoMatch: onNoMatchHandler,
   },
   setSessionCookie,
+  clearSessionCookie,
 };
 
 export default controller;

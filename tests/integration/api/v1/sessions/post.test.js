@@ -65,6 +65,16 @@ describe("POST /api/v1/sessions", () => {
           }),
         });
         expect(response.status).toBe(401);
+
+        const cookies = setCookieParser.parse(response, { map: true });
+        expect(cookies.session_id).toEqual({
+          name: "session_id",
+          value: "invalid",
+          httpOnly: true,
+          path: "/",
+          maxAge: -1,
+        });
+
         const responseBody = await response.json();
         expect(responseBody.name).toBe("UnauthorizedError");
         expect(responseBody.message).toBe("Authentication failed.");
