@@ -32,13 +32,12 @@ async function onNoMatchHandler(request, response) {
   response.status(publicErrorObject.statusCode).json(publicErrorObject);
 }
 
-function setSessionCookie(token, response) {
+function setSessionCookie(token, maxAge, response) {
   response.setHeader(
     "Set-Cookie",
     cookie.serialize("session_id", token, {
       path: "/",
-      // Time in seconds
-      maxAge: session.EXPIRATION_IN_DAYS * 24 * 60 * 60,
+      maxAge: maxAge,
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
     }),

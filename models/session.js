@@ -87,6 +87,29 @@ async function renew(sessionId) {
   }
 }
 
+async function revoke(sessionId) {
+  const revokedSession = await invalidateSession(sessionId);
+  return revokedSession;
+
+  async function invalidateSession(sessionId) {
+    const results = await database.query({
+      text: `
+    UPDATE
+      sessions
+    SET
+      expires_at = expires_at - interval '1 year',
+      updated_at = NOW()
+    WHERE
+      id = $1
+    RETURNING
+      *
+    ;`,
+      values: [sessionId],
+    });
+    return results.rows[0];
+  }
+}
+
 function getDateFutureDateByDays(days = 0) {
   const date = new Date();
   date.setDate(date.getDate() + days);
@@ -97,6 +120,7 @@ const session = {
   create,
   validate,
   renew,
+  revoke,
   EXPIRATION_IN_DAYS,
 };
 
