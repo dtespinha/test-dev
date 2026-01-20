@@ -6,7 +6,7 @@ import {
   NotFoundError,
   ValidationError,
 } from "infra/errors.js";
-import session from "models/session";
+import session from "models/session.js";
 
 async function onErrorHandler(error, request, response) {
   if (error instanceof ValidationError || error instanceof NotFoundError) {
@@ -54,6 +54,7 @@ function clearSessionCookie(response) {
       maxAge: -1,
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
+      sameSite: "Lax",
     }),
   );
 }
