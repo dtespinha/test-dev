@@ -50,6 +50,7 @@ describe("POST /api/v1/sessions", () => {
           httpOnly: true,
           path: "/",
           maxAge: session.EXPIRATION_IN_DAYS * 24 * 60 * 60,
+          sameSite: "Lax",
         });
       });
 
@@ -73,6 +74,7 @@ describe("POST /api/v1/sessions", () => {
           httpOnly: true,
           path: "/",
           maxAge: -1,
+          sameSite: "Lax",
         });
 
         const responseBody = await response.json();

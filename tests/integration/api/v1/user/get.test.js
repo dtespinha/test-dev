@@ -49,6 +49,7 @@ describe("GET /api/v1/user", () => {
           httpOnly: true,
           path: "/",
           maxAge: session.EXPIRATION_IN_DAYS * 24 * 60 * 60,
+          sameSite: "Lax",
         });
       });
 
@@ -105,6 +106,7 @@ describe("GET /api/v1/user", () => {
           httpOnly: true,
           path: "/",
           maxAge: session.EXPIRATION_IN_DAYS * 24 * 60 * 60,
+          sameSite: "Lax",
         });
       });
 
@@ -124,6 +126,7 @@ describe("GET /api/v1/user", () => {
           httpOnly: true,
           path: "/",
           maxAge: -1,
+          sameSite: "Lax",
         });
 
         const responseBody = await response.json();
