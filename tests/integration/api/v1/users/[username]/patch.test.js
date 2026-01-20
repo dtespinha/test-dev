@@ -90,7 +90,7 @@ describe("PATCH /api/v1/users/{username}", () => {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              password: "test2",
+              password: "newpassword",
             }),
           },
         );
@@ -108,7 +108,7 @@ describe("PATCH /api/v1/users/{username}", () => {
         const correctPasswordMatch =
           await orchestrator.checkUserPasswordInDatabase({
             ...createdUserData.inputValues,
-            password: "test2",
+            password: "newpassword",
           });
         expect(correctPasswordMatch).toBe(true);
         expect(uuidVersion(responseBody.id)).toBe(4);

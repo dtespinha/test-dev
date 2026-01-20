@@ -12,7 +12,7 @@ describe("GET /api/v1/users/{username}", () => {
         const user = {
           username: "testuser",
           email: "email@test.com",
-          password: "test",
+          password: "testpassword",
         };
         const createUserData = await orchestrator.createUser(user);
 
@@ -34,7 +34,7 @@ describe("GET /api/v1/users/{username}", () => {
         const user = {
           username: "Testuser",
           email: "email@test.com",
-          password: "test",
+          password: "testpassword",
         };
         const createUserData = await orchestrator.createUser(user);
 

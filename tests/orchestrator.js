@@ -42,7 +42,7 @@ async function createUser(userInputValues = {}) {
       .replace(/[^a-z0-9]/g, "")
   ).slice(0, 20);
   const email = userInputValues.email || faker.internet.email().toLowerCase();
-  const password = userInputValues.password || faker.internet.password();
+  const password = userInputValues.password || faker.internet.password({ length: 12 });
   const inputValues = {
     username,
     email,
