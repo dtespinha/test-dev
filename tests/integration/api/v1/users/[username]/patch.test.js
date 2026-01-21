@@ -32,7 +32,7 @@ describe("PATCH /api/v1/users/{username}", () => {
           id: responseBody.id,
           username: "testuser2",
           email: createdUserData.inputValues.email,
-          features: [],
+          features: ["read:activation_token"],
           created_at: responseBody.created_at,
           updated_at: responseBody.updated_at,
         });
@@ -68,7 +68,7 @@ describe("PATCH /api/v1/users/{username}", () => {
           id: responseBody.id,
           username: createdUserData.inputValues.username,
           email: "email2@test.com",
-          features: [],
+          features: ["read:activation_token"],
           created_at: responseBody.created_at,
           updated_at: responseBody.updated_at,
         });
@@ -103,7 +103,7 @@ describe("PATCH /api/v1/users/{username}", () => {
           id: responseBody.id,
           username: createdUserData.inputValues.username,
           email: createdUserData.inputValues.email,
-          features: [],
+          features: ["read:activation_token"],
           created_at: responseBody.created_at,
           updated_at: responseBody.updated_at,
         });
@@ -141,7 +141,7 @@ describe("PATCH /api/v1/users/{username}", () => {
           id: responseBody.id,
           username: createdUserData.inputValues.username,
           email: createdUserData.inputValues.email,
-          features: [],
+          features: ["read:activation_token"],
           created_at: responseBody.created_at,
           updated_at: responseBody.updated_at,
         });
