@@ -6,7 +6,10 @@ import user from "../models/user.js";
 import password from "../models/password.js";
 import session from "../models/session.js";
 
+const emailHttpUrl = `http://${process.env.EMAIL_HTTP_HOST}:${process.env.EMAIL_HTTP_PORT}`;
+
 async function waitForAllServices() {
+  await waitForEmailServer();
   await waitForWebServer();
 
   async function waitForWebServer() {
@@ -17,6 +20,21 @@ async function waitForAllServices() {
 
     async function fetchStatusPage() {
       const response = await fetch("http://localhost:3000/api/v1/status");
+
+      if (response.status !== 200) {
+        throw Error();
+      }
+    }
+  }
+
+  async function waitForEmailServer() {
+    return retry(checkEmailServerAvailability, {
+      retries: 100,
+      maxTimeout: 1000,
+    });
+
+    async function checkEmailServerAvailability() {
+      const response = await fetch(emailHttpUrl);
 
       if (response.status !== 200) {
         throw Error();
@@ -69,6 +87,30 @@ async function checkUserPasswordInDatabase(userInputValues) {
   );
 }
 
+async function deleteAllEmails() {
+  await fetch(`${emailHttpUrl}/messages`, {
+    method: "DELETE",
+  });
+}
+
+async function getLastEmail() {
+  const emailListResponse = await fetch(`${emailHttpUrl}/messages`);
+  const emailListBody = await emailListResponse.json();
+  const lastEmailItem = emailListBody.pop();
+
+  if (lastEmailItem) {
+    const emailTextResponse = await fetch(
+      `${emailHttpUrl}/messages/${lastEmailItem.id}.plain`,
+    );
+    const emailTextBody = await emailTextResponse.text();
+    lastEmailItem.text = emailTextBody;
+
+    return lastEmailItem;
+  } else {
+    return null;
+  }
+}
+
 const orchestrator = {
   waitForAllServices,
   clearDatabase,
@@ -76,6 +118,8 @@ const orchestrator = {
   checkUserPasswordInDatabase,
   createUser,
   createSession,
+  deleteAllEmails,
+  getLastEmail,
 };
 
 export default orchestrator;

@@ -35,10 +35,10 @@ export class MethodNotAllowedError extends Error {
 }
 
 export class ServiceError extends Error {
-  constructor({ cause }) {
-    super("Service Unavailable.", { cause: cause });
+  constructor({ cause, message, action }) {
+    super(message || "Service Unavailable.", { cause: cause });
     this.name = "ServiceError";
-    this.action = "Verify service status";
+    this.action = action || "Verify service status";
     this.statusCode = 503;
   }
 
