@@ -1,6 +1,8 @@
 import email from "../infra/email";
 import database from "../infra/database";
 import webserver from "../infra/webserver";
+import { NotFoundError } from "../infra/errors";
+import user from "../models/user";
 
 // 15 minutes
 const EXPIRATION_IN_MILISECONDS = 60 * 15 * 1000;
@@ -43,9 +45,57 @@ async function create(userId) {
   }
 }
 
+async function activateToken(tokenId) {
+  const updatedToken = await runActivateTokenQuery(tokenId);
+
+  if (!updatedToken) {
+    throw new NotFoundError({
+      message: "Token not found.",
+      action: "Please provide a valid token.",
+    });
+  }
+
+  return updatedToken;
+
+  async function runActivateTokenQuery(tokenId) {
+    const results = await database.query({
+      text: `
+    UPDATE
+      user_activation_tokens
+    SET
+      used_at = timezone('utc', now()),
+      updated_at = timezone('utc', now())
+    WHERE
+      id = $1
+    AND
+      used_at IS NULL
+    AND
+      expires_at > NOW()
+    RETURNING
+      *
+    ;`,
+      values: [tokenId],
+    });
+    return results.rows[0];
+  }
+}
+
+async function activateUser(userId) {
+  if (!userId) {
+    throw new NotFoundError({
+      message: "User could not be activated.",
+      action: "Please provide a valid token.",
+    });
+  }
+
+  await user.setFeatures(userId, ["create:session"]);
+}
+
 const activation = {
   sendEmailToUser,
   create,
+  activateToken,
+  activateUser,
 };
 
 export default activation;

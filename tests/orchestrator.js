@@ -112,7 +112,7 @@ async function getLastEmail() {
   }
 }
 
-async function getUserIdByToken(tokenId) {
+async function getUserIdByActivationToken(tokenId) {
   const results = await database.query({
     text: `
     SELECT
@@ -132,9 +132,29 @@ async function getUserIdByToken(tokenId) {
   return results.rows[0].user_id;
 }
 
+async function getActivationTokenData(tokenId) {
+  const results = await database.query({
+    text: `
+    SELECT
+      *
+    FROM
+      user_activation_tokens
+    WHERE
+      id = $1
+        ;`,
+    values: [tokenId],
+  });
+
+  return results.rows[0];
+}
+
 function extractUUID(text) {
   const uuid = text.match(/[0-9a-fA-F-]{36}/);
   return uuid ? uuid[0] : null;
+}
+
+async function getUserById(userId) {
+  return await user.findOneById(userId);
 }
 
 const orchestrator = {
@@ -146,8 +166,10 @@ const orchestrator = {
   createSession,
   deleteAllEmails,
   getLastEmail,
-  getUserIdByToken,
+  getUserIdByActivationToken,
   extractUUID,
+  getActivationTokenData,
+  getUserById,
 };
 
 export default orchestrator;

@@ -226,7 +226,7 @@ async function validateUniqueEmail(email, excludeUserId = null) {
 async function queryByUsername(username) {
   const results = await database.query({
     text: `
-    SELECT id, username, password, email, created_at, updated_at
+    SELECT *
     FROM    
       users
     WHERE
@@ -250,7 +250,7 @@ async function queryByUsername(username) {
 async function queryByEmail(email) {
   const results = await database.query({
     text: `
-    SELECT id, username, password, email, created_at, updated_at
+    SELECT *
     FROM
       users
     WHERE
@@ -274,7 +274,7 @@ async function queryByEmail(email) {
 async function queryById(id) {
   const results = await database.query({
     text: `
-    SELECT id, username, password, email, created_at, updated_at
+    SELECT *
     FROM
       users
     WHERE
@@ -295,6 +295,28 @@ async function queryById(id) {
   return results.rows[0];
 }
 
+async function setFeatures(userId, features) {
+  await runUpdateFeaturesQuery(userId, features);
+
+  async function runUpdateFeaturesQuery(userId, features) {
+    const results = await database.query({
+      text: `
+    UPDATE
+      users
+    SET
+      features = $2,
+      updated_at = timezone('utc', now())
+    WHERE
+      id = $1
+    RETURNING
+      *
+    ;`,
+      values: [userId, features],
+    });
+    return results.rows[0];
+  }
+}
+
 const user = {
   create,
   update,
@@ -302,6 +324,7 @@ const user = {
   findOneByEmail,
   findOneById,
   removePasswordFromObject,
+  setFeatures,
 };
 
 export default user;

@@ -25,6 +25,7 @@ describe("GET /api/v1/users/{username}", () => {
           id: createUserData.createdUser.id,
           username: createUserData.inputValues.username,
           email: createUserData.inputValues.email,
+          features: ["read:activation_token"],
           created_at: createUserData.createdUser.created_at.toISOString(),
           updated_at: createUserData.createdUser.updated_at.toISOString(),
         });
@@ -47,6 +48,7 @@ describe("GET /api/v1/users/{username}", () => {
           id: createUserData.createdUser.id,
           username: "testuser",
           email: createUserData.inputValues.email,
+          features: ["read:activation_token"],
           created_at: createUserData.createdUser.created_at.toISOString(),
           updated_at: createUserData.createdUser.updated_at.toISOString(),
         });
