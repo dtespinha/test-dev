@@ -9,6 +9,7 @@ beforeAll(async () => {
 describe("Use case: Registration Flow (All Successful)", () => {
   let createdUserResponseBody;
   let activationToken;
+  let createdSession;
   test("Create user account", async () => {
     const userInputValues = {
       username: "testuser",
@@ -57,5 +58,15 @@ describe("Use case: Registration Flow (All Successful)", () => {
     );
 
     expect(activatedUser.features).toEqual(["create:session"]);
+  });
+
+  test("Login", async () => {
+    const response = await fetch(`http://localhost:3000/api/v1/sessions`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: "test@test.com", password: "password" }),
+    });
+    expect(response.status).toBe(201);
+    createdSession = await response.json();
   });
 });

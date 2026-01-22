@@ -35,10 +35,11 @@ async function create(userId) {
 async function validate(token) {
   const validSession = await findValidSessionByToken(token);
   return validSession;
+}
 
-  async function findValidSessionByToken(token) {
-    const results = await database.query({
-      text: `
+async function findValidSessionByToken(token) {
+  const results = await database.query({
+    text: `
     SELECT
       *
     FROM
@@ -48,19 +49,18 @@ async function validate(token) {
     AND
       expires_at > NOW()
     ;`,
-      values: [token],
+    values: [token],
+  });
+
+  if (!results.rows[0]) {
+    throw new UnauthorizedError({
+      cause: "Invalid session",
+      message: "Session verification failed.",
+      action: "Verify provided token.",
     });
-
-    if (!results.rows[0]) {
-      throw new UnauthorizedError({
-        cause: "Invalid session",
-        message: "Session verification failed.",
-        action: "Verify provided token.",
-      });
-    }
-
-    return results.rows[0];
   }
+
+  return results.rows[0];
 }
 
 async function renew(sessionId) {
@@ -121,6 +121,7 @@ const session = {
   validate,
   renew,
   revoke,
+  findValidSessionByToken,
   EXPIRATION_IN_DAYS,
 };
 

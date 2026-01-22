@@ -4,23 +4,18 @@ import authentication from "models/authentication.js";
 import session from "models/session.js";
 
 const router = createRouter();
-router.post(postHandler);
+router.use(controller.injectAnonymousOrUser);
+router.post(controller.canRequest("create:session"), postHandler);
 router.delete(deleteHandler);
 
 export default router.handler(controller.errorHandlers);
 
 async function postHandler(request, response) {
-  const { email, password } = request.body || {};
-
-  if (email == null || password == null) {
-    return response
-      .status(400)
-      .json({ error: "Email and password are required." });
-  }
+  const userInputValues = request.body;
 
   const authenticateUser = await authentication.authenticateUser(
-    email,
-    password,
+    userInputValues.email,
+    userInputValues.password,
   );
   const newSession = await session.create(authenticateUser.id);
 

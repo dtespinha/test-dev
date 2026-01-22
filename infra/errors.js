@@ -111,3 +111,23 @@ export class UnauthorizedError extends Error {
     };
   }
 }
+
+export class ForbidenError extends Error {
+  constructor({ cause, message, action }) {
+    super(message || "Access denied.", {
+      cause: cause,
+    });
+    this.action = action || "Verify the necessary features before continue";
+    this.name = "ForbidenError";
+    this.statusCode = 403;
+  }
+
+  toJSON() {
+    return {
+      name: this.name,
+      message: this.message,
+      action: this.action,
+      status_code: this.statusCode,
+    };
+  }
+}
