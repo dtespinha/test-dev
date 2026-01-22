@@ -5,10 +5,6 @@ beforeEach(async () => {
   await orchestrator.deleteAllEmails();
 });
 
-afterEach(async () => {
-  await orchestrator.deleteAllEmails();
-});
-
 describe("infra/email.js", () => {
   test("Successfully send and retrieve last email", async () => {
     await email.send({

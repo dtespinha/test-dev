@@ -5,6 +5,7 @@ import migrator from "../models/migrator.js";
 import user from "../models/user.js";
 import password from "../models/password.js";
 import session from "../models/session.js";
+import activation from "../models/activation.js";
 
 const emailHttpUrl = `http://${process.env.EMAIL_HTTP_HOST}:${process.env.EMAIL_HTTP_PORT}`;
 
@@ -111,6 +112,31 @@ async function getLastEmail() {
   }
 }
 
+async function getUserIdByToken(tokenId) {
+  const results = await database.query({
+    text: `
+    SELECT
+      user_id
+    FROM
+      user_activation_tokens
+    WHERE
+      id = $1
+    AND
+      used_at IS NULL
+    AND
+      expires_at > NOW()
+        ;`,
+    values: [tokenId],
+  });
+
+  return results.rows[0].user_id;
+}
+
+function extractUUID(text) {
+  const uuid = text.match(/[0-9a-fA-F-]{36}/);
+  return uuid ? uuid[0] : null;
+}
+
 const orchestrator = {
   waitForAllServices,
   clearDatabase,
@@ -120,6 +146,8 @@ const orchestrator = {
   createSession,
   deleteAllEmails,
   getLastEmail,
+  getUserIdByToken,
+  extractUUID,
 };
 
 export default orchestrator;
