@@ -1,8 +1,9 @@
 import email from "../infra/email";
 import database from "../infra/database";
 import webserver from "../infra/webserver";
-import { NotFoundError } from "../infra/errors";
+import { NotFoundError, UnauthorizedError } from "../infra/errors";
 import user from "../models/user";
+import authorization from "./authorization";
 
 // 15 minutes
 const EXPIRATION_IN_MILISECONDS = 60 * 15 * 1000;
@@ -87,6 +88,16 @@ async function activateUser(userId) {
       action: "Please provide a valid token.",
     });
   }
+
+  const userToBeActivated = await user.findOneById(userId);
+
+  if (!authorization.can(userToBeActivated, "read:activation_token")) {
+    throw new UnauthorizedError({
+      message: "You can not use activation tokens anymore",
+      action: "Contect support.",
+    });
+  }
+
   const activatedUser = await user.setFeatures(userId, [
     "create:session",
     "read:session",
@@ -94,11 +105,45 @@ async function activateUser(userId) {
   return activatedUser;
 }
 
+async function findOneValidById(id) {
+  const userFound = await queryById(id);
+  return userFound;
+
+  async function queryById(id) {
+    const results = await database.query({
+      text: `
+    SELECT *
+    FROM
+      user_activation_tokens
+    WHERE
+      id = $1
+    AND
+      used_at IS NULL
+    AND
+      expires_at > NOW()
+    LIMIT
+      1
+    ;`,
+      values: [id],
+    });
+
+    if (!results.rows[0]) {
+      throw new NotFoundError({
+        message: "Token not found.",
+        action: "Please provide a valid token.",
+      });
+    }
+
+    return results.rows[0];
+  }
+}
+
 const activation = {
   sendEmailToUser,
   create,
   activateToken,
   activateUser,
+  findOneValidById,
 };
 
 export default activation;

@@ -76,9 +76,23 @@ async function createUser(userInputValues = {}) {
   return createdUserData;
 }
 
-async function activateUser(user) {
-  const activatedUser = await activation.activateUser(user.id);
+async function activateUser(userId) {
+  const activatedUser = await activation.activateUser(userId);
   return activatedUser;
+}
+
+async function activateToken(tokenId) {
+  const activatedUser = await activation.activateToken(tokenId);
+  return activatedUser;
+}
+
+async function activateUserAndToken(userId, tokenId) {
+  await activateUser(userId);
+  await activateToken(tokenId);
+}
+
+async function createActivationToken(userId) {
+  return await activation.create(userId);
 }
 
 async function createSession(userId) {
@@ -176,6 +190,9 @@ const orchestrator = {
   getActivationTokenData,
   getUserById,
   activateUser,
+  activateToken,
+  activateUserAndToken,
+  createActivationToken,
 };
 
 export default orchestrator;

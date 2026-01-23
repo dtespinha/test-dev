@@ -39,9 +39,13 @@ describe("GET /api/v1/user", () => {
         const createdUserData = await orchestrator.createUser({
           username: "userwithvalidsession",
         });
-        const activatedUser = await orchestrator.activateUser(
-          createdUserData.createdUser,
+        const activationToken = await orchestrator.createActivationToken(
+          createdUserData.createdUser.id,
         );
+        const activatedUser = await orchestrator.activateUser(
+          createdUserData.createdUser.id,
+        );
+        await orchestrator.activateToken(activationToken.id);
         const sessionCreated = await orchestrator.createSession(
           createdUserData.createdUser.id,
         );
@@ -83,16 +87,21 @@ describe("GET /api/v1/user", () => {
       });
 
       test("Session about to expire", async () => {
+        const createdUserData = await orchestrator.createUser({
+          username: "userwithvalidsession",
+        });
+        const activationToken = await orchestrator.createActivationToken(
+          createdUserData.createdUser.id,
+        );
+        const activatedUser = await orchestrator.activateUser(
+          createdUserData.createdUser.id,
+        );
+        await orchestrator.activateToken(activationToken.id);
+
         jest.useFakeTimers({
           now: Date.now() - 30 * 24 * 60 * 60 * 1000 + 60000,
         });
 
-        const createdUserData = await orchestrator.createUser({
-          username: "userwithvalidsession",
-        });
-        const activatedUser = await orchestrator.activateUser(
-          createdUserData.createdUser,
-        );
         const sessionCreated = await orchestrator.createSession(
           createdUserData.createdUser.id,
         );

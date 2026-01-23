@@ -13,7 +13,13 @@ describe("POST /api/v1/sessions", () => {
     describe("Authenticate an user", () => {
       test("With correct email and password", async () => {
         const createdUserData = await orchestrator.createUser();
-        await orchestrator.activateUser(createdUserData.createdUser);
+        const activationToken = await orchestrator.createActivationToken(
+          createdUserData.createdUser.id,
+        );
+        await orchestrator.activateUserAndToken(
+          createdUserData.createdUser.id,
+          activationToken.id,
+        );
 
         const response = await fetch(`http://localhost:3000/api/v1/sessions`, {
           method: "POST",
@@ -57,7 +63,13 @@ describe("POST /api/v1/sessions", () => {
 
       test("With invalid email and valid password", async () => {
         const createdUserData = await orchestrator.createUser();
-        await orchestrator.activateUser(createdUserData.createdUser);
+        const activationToken = await orchestrator.createActivationToken(
+          createdUserData.createdUser.id,
+        );
+        await orchestrator.activateUserAndToken(
+          createdUserData.createdUser.id,
+          activationToken.id,
+        );
 
         const response = await fetch(`http://localhost:3000/api/v1/sessions`, {
           method: "POST",
@@ -90,7 +102,13 @@ describe("POST /api/v1/sessions", () => {
 
       test("With valid email and invalid password", async () => {
         const createdUserData = await orchestrator.createUser();
-        await orchestrator.activateUser(createdUserData.createdUser);
+        const activationToken = await orchestrator.createActivationToken(
+          createdUserData.createdUser.id,
+        );
+        await orchestrator.activateUserAndToken(
+          createdUserData.createdUser.id,
+          activationToken.id,
+        );
 
         const response = await fetch(`http://localhost:3000/api/v1/sessions`, {
           method: "POST",

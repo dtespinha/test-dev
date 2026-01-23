@@ -14,7 +14,13 @@ describe("DELETE /api/v1/sessions", () => {
         const createdUserData = await orchestrator.createUser({
           username: "userwithvalidsession",
         });
-        await orchestrator.activateUser(createdUserData.createdUser);
+        const activationToken = await orchestrator.createActivationToken(
+          createdUserData.createdUser.id,
+        );
+        await orchestrator.activateUserAndToken(
+          createdUserData.createdUser.id,
+          activationToken.id,
+        );
         const sessionCreated = await orchestrator.createSession(
           createdUserData.createdUser.id,
         );
@@ -84,7 +90,6 @@ describe("DELETE /api/v1/sessions", () => {
         const createdUserData = await orchestrator.createUser({
           username: "userWithExpiredSession",
         });
-        await orchestrator.activateUser(createdUserData.createdUser);
 
         const sessionCreated = await orchestrator.createSession(
           createdUserData.createdUser.id,
