@@ -87,8 +87,11 @@ async function activateUser(userId) {
       action: "Please provide a valid token.",
     });
   }
-
-  await user.setFeatures(userId, ["create:session"]);
+  const activatedUser = await user.setFeatures(userId, [
+    "create:session",
+    "read:session",
+  ]);
+  return activatedUser;
 }
 
 const activation = {

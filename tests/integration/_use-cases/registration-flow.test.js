@@ -48,7 +48,7 @@ describe("Use case: Registration Flow (All Successful)", () => {
         method: "PATCH",
       },
     );
-    expect(response.status).toBe(204);
+    expect(response.status).toBe(200);
     const activationTokenData =
       await orchestrator.getActivationTokenData(activationToken);
 
@@ -57,7 +57,7 @@ describe("Use case: Registration Flow (All Successful)", () => {
       createdUserResponseBody.id,
     );
 
-    expect(activatedUser.features).toEqual(["create:session"]);
+    expect(activatedUser.features).toEqual(["create:session", "read:session"]);
   });
 
   test("Login", async () => {
@@ -67,6 +67,14 @@ describe("Use case: Registration Flow (All Successful)", () => {
       body: JSON.stringify({ email: "test@test.com", password: "password" }),
     });
     expect(response.status).toBe(201);
+    createdSession = await response.json();
+  });
+
+  test("Get user information", async () => {
+    const response = await fetch(`http://localhost:3000/api/v1/user`, {
+      headers: { Cookie: `session_id=${createdSession.token}` },
+    });
+    expect(response.status).toBe(200);
     createdSession = await response.json();
   });
 });

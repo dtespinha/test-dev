@@ -77,7 +77,8 @@ async function createUser(userInputValues = {}) {
 }
 
 async function activateUser(user) {
-  await activation.activateUser(user.id);
+  const activatedUser = await activation.activateUser(user.id);
+  return activatedUser;
 }
 
 async function createSession(userId) {
