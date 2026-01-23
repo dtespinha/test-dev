@@ -76,6 +76,10 @@ async function createUser(userInputValues = {}) {
   return createdUserData;
 }
 
+async function activateUser(user) {
+  await activation.activateUser(user.id);
+}
+
 async function createSession(userId) {
   return await session.create(userId);
 }
@@ -170,6 +174,7 @@ const orchestrator = {
   extractUUID,
   getActivationTokenData,
   getUserById,
+  activateUser,
 };
 
 export default orchestrator;
