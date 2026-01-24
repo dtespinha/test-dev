@@ -37,6 +37,16 @@ describe("PATCH /api/v1/activations", () => {
         expect(
           activationToken.updated_at < new Date(responseBody.updated_at),
         ).toBe(true);
+
+        const usersWithFeatures = await orchestrator.getUserById(
+          createdUserData.createdUser.id,
+        );
+        expect(usersWithFeatures.features).toEqual([
+          "create:session",
+          "read:session",
+          "read:user",
+          "edit:user",
+        ]);
       });
 
       test("Token already used", async () => {

@@ -4,6 +4,8 @@ import user from "models/user.js";
 import activation from "models/activation.js";
 
 const router = createRouter();
+router.use(controller.injectAnonymousOrUser);
+router.post(controller.canRequest("create:user"), postHandler);
 router.post(postHandler);
 
 export default router.handler(controller.errorHandlers);

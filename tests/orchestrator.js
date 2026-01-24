@@ -87,8 +87,9 @@ async function activateToken(tokenId) {
 }
 
 async function activateUserAndToken(userId, tokenId) {
-  await activateUser(userId);
-  await activateToken(tokenId);
+  const activatedUser = await activateUser(userId);
+  const activatedToken = await activateToken(tokenId);
+  return { activatedUser, activatedToken };
 }
 
 async function createActivationToken(userId) {

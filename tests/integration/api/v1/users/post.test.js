@@ -554,4 +554,46 @@ describe("POST /api/v1/users", () => {
       });
     });
   });
+  describe("Default user", () => {
+    describe("Create an user", () => {
+      test("Without permission", async () => {
+        const createdUserData = await orchestrator.createUser();
+        const activationToken = await orchestrator.createActivationToken(
+          createdUserData.createdUser.id,
+        );
+        await orchestrator.activateUserAndToken(
+          createdUserData.createdUser.id,
+          activationToken.id,
+        );
+        const session = await orchestrator.createSession(
+          createdUserData.createdUser.id,
+        );
+
+        const userInputValues = {
+          username: "testuser",
+          email: "test@test.com",
+          password: "password",
+        };
+        const response = await fetch("http://localhost:3000/api/v1/users", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Cookie: `session_id=${session.token}`,
+          },
+          body: JSON.stringify(userInputValues),
+        });
+
+        expect(response.status).toBe(403);
+
+        const responseBody = await response.json();
+        expect(responseBody.message).toBe(
+          "You do not have permission to execute this action.",
+        );
+        expect(responseBody.action).toBe(
+          "Verify if your user has the feature create:user.",
+        );
+        expect(responseBody.status_code).toBe(403);
+      });
+    });
+  });
 });

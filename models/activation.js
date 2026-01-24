@@ -94,13 +94,15 @@ async function activateUser(userId) {
   if (!authorization.can(userToBeActivated, "read:activation_token")) {
     throw new UnauthorizedError({
       message: "You can not use activation tokens anymore",
-      action: "Contect support.",
+      action: "Contact support.",
     });
   }
 
   const activatedUser = await user.setFeatures(userId, [
     "create:session",
     "read:session",
+    "read:user",
+    "edit:user",
   ]);
   return activatedUser;
 }

@@ -33,7 +33,7 @@ describe("GET /api/v1/user", () => {
       });
     });
   });
-  describe("Logged user", () => {
+  describe("Default user", () => {
     describe("Renew user session", () => {
       test("With valid session", async () => {
         const createdUserData = await orchestrator.createUser({
@@ -60,7 +60,12 @@ describe("GET /api/v1/user", () => {
           id: createdUserData.createdUser.id,
           username: "userwithvalidsession",
           email: createdUserData.inputValues.email,
-          features: ["create:session", "read:session"],
+          features: [
+            "create:session",
+            "read:session",
+            "read:user",
+            "edit:user",
+          ],
           created_at: createdUserData.createdUser.created_at.toISOString(),
           updated_at: activatedUser.updated_at.toISOString(),
         });
@@ -125,7 +130,12 @@ describe("GET /api/v1/user", () => {
           id: createdUserData.createdUser.id,
           username: "userwithvalidsession",
           email: createdUserData.inputValues.email,
-          features: ["create:session", "read:session"],
+          features: [
+            "create:session",
+            "read:session",
+            "read:user",
+            "edit:user",
+          ],
           created_at: createdUserData.createdUser.created_at.toISOString(),
           updated_at: activatedUser.updated_at.toISOString(),
         });
