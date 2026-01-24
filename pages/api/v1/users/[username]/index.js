@@ -1,6 +1,8 @@
 import { createRouter } from "next-connect";
 import controller from "infra/controller";
 import user from "models/user.js";
+import authorization from "models/authorization";
+import { ForbidenError } from "infra/errors.js";
 
 const router = createRouter();
 router.use(controller.injectAnonymousOrUser);
@@ -19,6 +21,17 @@ async function getHandler(request, response) {
 async function patchHandler(request, response) {
   const username = request.query.username;
   const userInputValues = request.body;
+
+  const targetUser = await user.findOneByUsername(username);
+  const loggedUser = request.context.user;
+
+  if (!authorization.can(loggedUser, "edit:user", targetUser)) {
+    throw new ForbidenError({
+      message: "You do not have permission to execute this action.",
+      action: `Verify if your user has the feature edit:user for user ${username}.`,
+    });
+  }
+
   const updatedUser = await user.update(username, userInputValues);
   return response
     .status(200)
