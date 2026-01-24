@@ -1,4 +1,5 @@
 import database from "../infra/database.js";
+
 import password from "../models/password.js";
 import { ValidationError, NotFoundError } from "../infra/errors.js";
 
@@ -318,6 +319,29 @@ async function setFeatures(userId, features) {
   }
 }
 
+async function addFeatures(userId, features) {
+  const updatedUser = await runUpdateFeaturesQuery(userId, features);
+  return updatedUser;
+
+  async function runUpdateFeaturesQuery(userId, features) {
+    const results = await database.query({
+      text: `
+    UPDATE
+      users
+    SET
+      features = array_cat(features, $2),
+      updated_at = timezone('utc', now())
+    WHERE
+      id = $1
+    RETURNING
+      *
+    ;`,
+      values: [userId, features],
+    });
+    return results.rows[0];
+  }
+}
+
 const user = {
   create,
   update,
@@ -326,6 +350,7 @@ const user = {
   findOneById,
   removePasswordFromObject,
   setFeatures,
+  addFeatures,
 };
 
 export default user;

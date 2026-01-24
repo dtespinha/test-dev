@@ -102,7 +102,7 @@ async function activateUser(userId) {
     "create:session",
     "read:session",
     "read:user",
-    "edit:user",
+    "update:user",
   ]);
   return activatedUser;
 }

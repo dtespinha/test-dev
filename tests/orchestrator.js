@@ -177,6 +177,10 @@ async function getUserById(userId) {
   return await user.findOneById(userId);
 }
 
+async function grantUserFeature(userData, features) {
+  return await user.addFeatures(userData.id, features);
+}
+
 const orchestrator = {
   waitForAllServices,
   clearDatabase,
@@ -194,6 +198,7 @@ const orchestrator = {
   activateToken,
   activateUserAndToken,
   createActivationToken,
+  grantUserFeature,
 };
 
 export default orchestrator;

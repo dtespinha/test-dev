@@ -8,7 +8,7 @@ beforeEach(async () => {
 });
 
 describe("DELETE /api/v1/sessions", () => {
-  describe("Logged user", () => {
+  describe("Default user", () => {
     describe("Delete session", () => {
       test("With valid session", async () => {
         const createdUserData = await orchestrator.createUser({

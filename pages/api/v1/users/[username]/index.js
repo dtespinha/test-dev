@@ -7,7 +7,7 @@ import { ForbidenError } from "infra/errors.js";
 const router = createRouter();
 router.use(controller.injectAnonymousOrUser);
 router.get(controller.canRequest("read:user"), getHandler);
-router.patch(controller.canRequest("edit:user"), patchHandler);
+router.patch(controller.canRequest("update:user"), patchHandler);
 
 export default router.handler(controller.errorHandlers);
 
@@ -25,10 +25,10 @@ async function patchHandler(request, response) {
   const targetUser = await user.findOneByUsername(username);
   const loggedUser = request.context.user;
 
-  if (!authorization.can(loggedUser, "edit:user", targetUser)) {
+  if (!authorization.can(loggedUser, "update:user", targetUser)) {
     throw new ForbidenError({
       message: "You do not have permission to execute this action.",
-      action: `Verify if your user has the feature edit:user for user ${username}.`,
+      action: `Verify if your user has the feature update:user for user ${username}.`,
     });
   }
 

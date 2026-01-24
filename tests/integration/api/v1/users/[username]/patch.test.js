@@ -49,7 +49,7 @@ describe("PATCH /api/v1/users/{username}", () => {
             "create:session",
             "read:session",
             "read:user",
-            "edit:user",
+            "update:user",
           ],
           created_at: responseBody.created_at,
           updated_at: responseBody.updated_at,
@@ -103,7 +103,7 @@ describe("PATCH /api/v1/users/{username}", () => {
             "create:session",
             "read:session",
             "read:user",
-            "edit:user",
+            "update:user",
           ],
           created_at: responseBody.created_at,
           updated_at: responseBody.updated_at,
@@ -156,7 +156,7 @@ describe("PATCH /api/v1/users/{username}", () => {
             "create:session",
             "read:session",
             "read:user",
-            "edit:user",
+            "update:user",
           ],
           created_at: responseBody.created_at,
           updated_at: responseBody.updated_at,
@@ -212,7 +212,7 @@ describe("PATCH /api/v1/users/{username}", () => {
             "create:session",
             "read:session",
             "read:user",
-            "edit:user",
+            "update:user",
           ],
           created_at: responseBody.created_at,
           updated_at: responseBody.updated_at,
@@ -509,9 +509,66 @@ describe("PATCH /api/v1/users/{username}", () => {
           "You do not have permission to execute this action.",
         );
         expect(responseBody.action).toBe(
-          `Verify if your user has the feature edit:user for user ${createdUserData2.inputValues.username}.`,
+          `Verify if your user has the feature update:user for user ${createdUserData2.inputValues.username}.`,
         );
         expect(responseBody.status_code).toBe(403);
+      });
+    });
+  });
+  describe("Privileged user", () => {
+    describe("Update an user", () => {
+      test("With update:user:others targeting default user", async () => {
+        const privilegedUser = await orchestrator.createUser();
+        const defaultUser = await orchestrator.createUser();
+
+        const activationToken = await orchestrator.createActivationToken(
+          privilegedUser.createdUser.id,
+        );
+        await orchestrator.activateUserAndToken(
+          privilegedUser.createdUser.id,
+          activationToken.id,
+        );
+        await orchestrator.grantUserFeature(privilegedUser.createdUser, [
+          "update:user:others",
+        ]);
+        const session = await orchestrator.createSession(
+          privilegedUser.createdUser.id,
+        );
+
+        const response = await fetch(
+          `http://localhost:3000/api/v1/users/${defaultUser.inputValues.username}`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+              Cookie: `session_id=${session.token}`,
+            },
+            body: JSON.stringify({
+              username: "otherName",
+            }),
+          },
+        );
+        expect(response.status).toBe(200);
+
+        const responseBody = await response.json();
+        expect(responseBody).toEqual({
+          id: responseBody.id,
+          username: "othername",
+          email: defaultUser.inputValues.email,
+          features: ["read:activation_token"],
+          created_at: responseBody.created_at,
+          updated_at: responseBody.updated_at,
+        });
+
+        const correctPasswordMatch =
+          await orchestrator.checkUserPasswordInDatabase({
+            ...defaultUser.inputValues,
+            username: "othername",
+          });
+        expect(correctPasswordMatch).toBe(true);
+        expect(uuidVersion(responseBody.id)).toBe(4);
+        expect(Date.parse(responseBody.created_at)).not.toBeNaN();
+        expect(Date.parse(responseBody.updated_at)).not.toBeNaN();
       });
     });
   });
@@ -536,7 +593,7 @@ describe("PATCH /api/v1/users/{username}", () => {
           "You do not have permission to execute this action.",
         );
         expect(responseBody.action).toBe(
-          "Verify if your user has the feature edit:user.",
+          "Verify if your user has the feature update:user.",
         );
         expect(responseBody.status_code).toBe(403);
       });
